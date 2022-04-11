@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // A new greeting is published every time a user's proof is validated.
     event NewQuestion(uint256 sessionId, bytes32 signal);
+    event QuestionVoted(uint256 sessionId, bytes32 signal);
     event AmaSessionCreated(uint256 indexed groupId);
     event UserJoinedAmaSession(
         uint256 indexed groupId,
@@ -38,13 +39,14 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         address owner;
         SessionState state;
     }
+
     struct Question {
-        uint256 questionId;
         string text;
+        uint256 votes;
     }
 
     mapping(uint256 => AmaSession) public amaSessions; // sessionId => AMA Session
-    mapping(uint256 => Question[]) public amaSessionQuestions; // sessionId => Question[]
+    mapping(bytes32 => Question) public amaSessionQuestions; // hash(sessionId, signal) => Question, where signal is a question
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
 
     // Greeters are identified by a Merkle root.
@@ -137,10 +139,52 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             "AMA: the proof is not valid"
         );
 
+        // TODO: pass in question
+        // string memory text = string(abi.encodePacked(signal));
+        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
+        amaSessionQuestions[id] = Question({
+            text: "Some random question",
+            votes: 0
+        });
+
         // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
         // Every user can greet once.
         _saveNullifierHash(_nullifierHash);
 
         emit NewQuestion(sessionId, signal);
+    }
+
+    function voteQuestion(
+        uint256 sessionId,
+        bytes32 signal,
+        uint256 _nullifierHash,
+        uint256[8] calldata _proof
+    ) external {
+        // TODO: check that sessionId exists
+        // require(amaSessionQuestions[sessionId]., "AMA session does not exist");
+
+        // bytes32 signal = keccak256(abi.encodePacked(sessionId, _question));
+
+        require(
+            _isValidProof(
+                signal,
+                greeters,
+                _nullifierHash,
+                greeters,
+                _proof,
+                verifier
+            ),
+            "AMA: the proof is not valid"
+        );
+
+        // add votes to question
+        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
+        amaSessionQuestions[id].votes += 1;
+
+        // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
+        // Every user can greet once.
+        _saveNullifierHash(_nullifierHash);
+
+        emit QuestionVoted(sessionId, signal);
     }
 }

@@ -152,5 +152,81 @@ describe("AMA", function () {
 
             await expect(contract.postQuestion(sessionId, bytes32Signal, nullifierHash, solidityProof)).to.be.revertedWith("SemaphoreCore: you cannot use the same nullifier twice");
         })
+
+        it("Should be able to upvote a question in an AMA session", async () => {
+            // create an identity commitment for the user
+            let audience1 = signers[1]
+            const message = await audience1.signMessage("Sign this message to create your identity!")
+            const identity = new ZkIdentity(Strategy.MESSAGE, message)
+            const identityCommitment = identity.genIdentityCommitment()
+            console.log("identityCommitment", identityCommitment)
+
+
+            // const question = "Why are existing staffs not considered for new roles?"
+            const signal = "Hello world"
+            const bytes32Signal = ethers.utils.formatBytes32String(signal)
+
+            // fetch identity commitments for this session
+            const identityCommitmentsBN = await contract.getIdentityCommitments(sessionId);
+            var identityCommitments = [];
+            for (var i = 0; i < identityCommitmentsBN.length; i++) {
+                identityCommitments.push(identityCommitmentsBN[i].toString());
+            }
+
+            const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment)
+            const witness = Semaphore.genWitness(
+                identity.getTrapdoor(),
+                identity.getNullifier(),
+                merkleProof,
+                merkleProof.root,
+                signal
+            )
+
+            const fullProof = await Semaphore.genProof(witness, WASM_FILEPATH, FINAL_ZKEY_FILEPATH)
+            const solidityProof = Semaphore.packToSolidityProof(fullProof.proof)
+            const nullifierHash = Semaphore.genNullifierHash(merkleProof.root, identity.getNullifier())
+
+            const transaction = contract.voteQuestion(sessionId, bytes32Signal, nullifierHash, solidityProof)
+
+            await expect(transaction).to.emit(contract, "QuestionVoted").withArgs(sessionId, bytes32Signal)
+        })
+
+        it("Should not be able to upvote the same question in an AMA session", async () => {
+            // create an identity commitment for the user
+            let audience1 = signers[1]
+            const message = await audience1.signMessage("Sign this message to create your identity!")
+            const identity = new ZkIdentity(Strategy.MESSAGE, message)
+            const identityCommitment = identity.genIdentityCommitment()
+            console.log("identityCommitment", identityCommitment)
+
+
+            // const question = "Why are existing staffs not considered for new roles?"
+            const signal = "Hello world"
+            const bytes32Signal = ethers.utils.formatBytes32String(signal)
+
+            // fetch identity commitments for this session
+            const identityCommitmentsBN = await contract.getIdentityCommitments(sessionId);
+            var identityCommitments = [];
+            for (var i = 0; i < identityCommitmentsBN.length; i++) {
+                identityCommitments.push(identityCommitmentsBN[i].toString());
+            }
+
+            const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment)
+            const witness = Semaphore.genWitness(
+                identity.getTrapdoor(),
+                identity.getNullifier(),
+                merkleProof,
+                merkleProof.root,
+                signal
+            )
+
+            const fullProof = await Semaphore.genProof(witness, WASM_FILEPATH, FINAL_ZKEY_FILEPATH)
+            const solidityProof = Semaphore.packToSolidityProof(fullProof.proof)
+            const nullifierHash = Semaphore.genNullifierHash(merkleProof.root, identity.getNullifier())
+
+            await expect(contract.voteQuestion(sessionId, bytes32Signal, nullifierHash, solidityProof)).to.be.revertedWith("SemaphoreCore: you cannot use the same nullifier twice");
+        })
     })
+
+
 })
