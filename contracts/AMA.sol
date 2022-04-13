@@ -5,6 +5,7 @@ import "@appliedzkp/semaphore-contracts/interfaces/IVerifier.sol";
 import "@appliedzkp/semaphore-contracts/base/SemaphoreCore.sol";
 import "@appliedzkp/semaphore-contracts/base/SemaphoreGroups.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 /// @title Greeters contract.
 /// @dev The following code is just a example to show how Semaphore con be used.
@@ -34,21 +35,24 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     }
 
     struct AmaSession {
+        uint256 sessionId;
         string title;
         string pinHash;
         address owner;
         SessionState state;
     }
 
+    using Counters for Counters.Counter;
+    Counters.Counter private _questionIdCounter;
     struct Question {
         string text;
         uint256 votes;
     }
 
     mapping(uint256 => AmaSession) public amaSessions; // sessionId => AMA Session
-    mapping(bytes32 => Question) public amaSessionQuestions; // hash(sessionId, signal) => Question, where signal is a question
+    mapping(bytes32 => Question) public amaSessionQuestion; // hash(sessionId, questionId) => Question
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
-
+    mapping(uint256 => uint256[]) public amaSessionQuestionList; // sessionId => [questionIds]
     // Greeters are identified by a Merkle root.
     // The offchain Merkle tree contains the greeters' identity commitments.
     uint256 public greeters;
@@ -70,6 +74,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         _createGroup(sessionId, depth, 0);
 
         amaSessions[sessionId] = AmaSession({
+            sessionId: sessionId,
             title: title,
             pinHash: pinHash,
             owner: msg.sender,
@@ -118,34 +123,43 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // The external nullifier is in this example the root of the Merkle tree.
     function postQuestion(
         uint256 sessionId,
+        string calldata question,
         bytes32 signal,
+        uint256 root,
         uint256 _nullifierHash,
+        uint256 externalNullifier,
         uint256[8] calldata _proof
     ) external {
         // TODO: check that sessionId exists
         // require(amaSessions[sessionId].id > 0, "AMA session does not exist");
 
-        // bytes32 signal = keccak256(abi.encodePacked(sessionId, _question));
+        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
+        // require(
+        //     amaSessionQuestion[id].votes == 0,
+        //     "Duplicate question for this AMA session"
+        // );
+
+        emit NewQuestion(sessionId, signal);
 
         require(
             _isValidProof(
                 signal,
-                greeters,
+                root,
                 _nullifierHash,
-                greeters,
+                externalNullifier,
                 _proof,
                 verifier
             ),
             "AMA: the proof is not valid"
         );
 
-        // TODO: pass in question
-        // string memory text = string(abi.encodePacked(signal));
-        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
-        amaSessionQuestions[id] = Question({
-            text: "Some random question",
-            votes: 0
-        });
+        // TODO: use safemath to increment questionId
+        Question memory q = Question({text: question, votes: 0});
+        amaSessionQuestion[id] = q;
+        _questionIdCounter.increment();
+
+        // store question in ama session
+        amaSessionQuestionList[sessionId].push(_questionIdCounter.current());
 
         // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
         // Every user can greet once.
@@ -157,7 +171,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     function voteQuestion(
         uint256 sessionId,
         bytes32 signal,
+        uint256 root,
         uint256 _nullifierHash,
+        uint256 externalNullifier,
         uint256[8] calldata _proof
     ) external {
         // TODO: check that sessionId exists
@@ -168,9 +184,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         require(
             _isValidProof(
                 signal,
-                greeters,
+                root,
                 _nullifierHash,
-                greeters,
+                externalNullifier,
                 _proof,
                 verifier
             ),
@@ -179,12 +195,20 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
 
         // add votes to question
         bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
-        amaSessionQuestions[id].votes += 1;
+        amaSessionQuestion[id].votes += 1;
 
         // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
         // Every user can greet once.
         _saveNullifierHash(_nullifierHash);
 
         emit QuestionVoted(sessionId, signal);
+    }
+
+    function getQuestionsForSession(uint256 sessionId)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        return amaSessionQuestionList[sessionId];
     }
 }
