@@ -162,12 +162,10 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     }
 
     // Session activities
-    function createAmaSession(
-        uint256 sessionId,
-        uint8 depth,
-        bytes32 accessCodeHash
-    ) external {
-        _createGroup(sessionId, depth, 0);
+    function createAmaSession(uint256 sessionId, bytes32 accessCodeHash)
+        external
+    {
+        _createGroup(sessionId, 20, 0);
 
         amaSessions[sessionId] = AmaSession({
             sessionId: sessionId,

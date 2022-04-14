@@ -38,17 +38,17 @@ describe("AMA", function () {
 
     describe("# AMA sessions (a.k.a Semaphore Groups)", () => {
         it("Should create an AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0], DEPTH, accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[0], accessCodeHash);
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[0])
         })
 
         it("Should not create a duplicated AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0], DEPTH, accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[0], accessCodeHash);
             await expect(transaction).to.be.revertedWith("SemaphoreGroups: group already exists");
         })
 
         it("Should be able to create another AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[1], DEPTH, accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[1], accessCodeHash);
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[1]);
         })
 

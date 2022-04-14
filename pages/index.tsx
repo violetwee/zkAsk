@@ -5,9 +5,54 @@ import { providers } from "ethers"
 import Head from "next/head"
 import React from "react"
 import styles from "../styles/Home.module.css"
+import CreateAmaForm from "./CreateAmaForm"
 
 export default function Home() {
-    const [logs, setLogs] = React.useState("Connect your wallet and greet!")
+    const [logs, setLogs] = React.useState("Connect your wallet to join an AMA session!")
+
+    // create AMA session
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+        const formData = new FormData(event.currentTarget);
+        console.log(formData)
+
+        // for (let [key, value] of formData.entries()) {
+        //     console.log(key, value);
+        //   }
+
+        console.log(event.target)
+        event.preventDefault();
+
+        
+        // let { title, host, desc, accessCode } = formData;
+        // const data = JSON.stringify({
+        //     title: title,
+        //         host: host,
+        //         desc: desc,
+        //         accessCode: accessCode
+        // })
+        // const endpoint = '/api/create_ama';
+
+        // const options = {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: data,
+        //   }
+      
+        //   const response = await fetch(endpoint, options)
+        //   const result = await response.json()
+        //   console.log("result", result)
+
+        // if (response.status === 500) {
+        //     const errorMessage = await response.text()
+
+        //     setLogs(errorMessage)
+        // } else {
+        //     setLogs("AMA session created and saved to database")
+        // }
+    }
+
 
     async function greet() {
         setLogs("Creating your Semaphore identity...")
@@ -77,6 +122,21 @@ export default function Home() {
                 <div onClick={() => greet()} className={styles.button}>
                     Greet
                 </div>
+
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="title">Title:</label>
+                    <input type="text" id="title" name="title" required />
+                    <label htmlFor="desc">Description:</label>
+                    <input type="text" id="desc" name="desc" />
+                    <label htmlFor="host">Host(s):</label>
+                    <input type="text" id="host" name="host" />
+                    <label htmlFor="accessCode">Access Code:</label>
+                    <input type="text" id="accessCode" name="accessCode" />
+                    <button type="submit">Create AMA</button>
+
+                </form>
+
+                <CreateAmaForm/>
             </main>
         </div>
     )
