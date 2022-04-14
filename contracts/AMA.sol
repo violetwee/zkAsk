@@ -11,17 +11,21 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 /// @dev The following code is just a example to show how Semaphore con be used.
 contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // A new greeting is published every time a user's proof is validated.
-    event NewQuestion(uint256 sessionId, bytes32 signal);
-    event QuestionVoted(uint256 sessionId, bytes32 signal, uint256 votes);
-    event AmaSessionCreated(uint256 indexed groupId);
+    event NewQuestion(uint256 sessionId, uint256 questionId, bytes32 signal);
+    event QuestionVoted(uint256 sessionId, uint256 questionId, uint256 votes);
+    event AmaSessionCreated(uint256 indexed sessionId);
     event UserJoinedAmaSession(
-        uint256 indexed groupId,
+        uint256 indexed sessionId,
         uint256 identityCommitment
     );
     event UserLeftAmaSession(
-        uint256 indexed groupId,
+        uint256 indexed sessionId,
         uint256 identityCommitment
     );
+
+    event AmaSessionActive(uint256 sessionId);
+    event AmaSessionPaused(uint256 sessionId);
+    event AmaSessionEnded(uint256 sessionId);
 
     // NotStarted: Allows host to pre-create AMA session but keep it as inactive state. Audience may join but cannot post questions yet
     // Active: Audience may post questions
@@ -36,47 +40,138 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
 
     struct AmaSession {
         uint256 sessionId;
-        string title;
-        string pinHash;
         address owner;
+        bytes32 accessCodeHash; // only users with the access code can join the AMA session
         SessionState state;
     }
 
-    using Counters for Counters.Counter;
-    Counters.Counter private _questionIdCounter;
     struct Question {
-        string text;
-        uint256 votes;
+        uint256 questionId;
+        uint256 votes; // total number of votes
     }
 
     mapping(uint256 => AmaSession) public amaSessions; // sessionId => AMA Session
     mapping(bytes32 => Question) public amaSessionQuestion; // hash(sessionId, questionId) => Question
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
-    mapping(uint256 => uint256[]) public amaSessionQuestionList; // sessionId => [questionIds]
-    // Greeters are identified by a Merkle root.
-    // The offchain Merkle tree contains the greeters' identity commitments.
-    uint256 public greeters;
 
     // The external verifier used to verify Semaphore proofs.
     IVerifier public verifier;
 
-    constructor(uint256 _greeters, address _verifier) {
-        greeters = _greeters;
+    constructor(address _verifier) {
         verifier = IVerifier(_verifier);
     }
 
+    /** 
+        MODIFIERS
+    */
+    modifier hasAccess(uint256 sessionId, bytes32 accessCodeHash) {
+        require(
+            amaSessions[sessionId].accessCodeHash == accessCodeHash,
+            "You do not have access to this AMA session"
+        );
+        _;
+    }
+    modifier amaNotStarted(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].state == SessionState.NotStarted,
+            "AMA session's state should be Not Started"
+        );
+        _;
+    }
+    modifier amaActive(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].state == SessionState.Active,
+            "AMA session's state should be Active"
+        );
+        _;
+    }
+    modifier amaPaused(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].state == SessionState.Paused,
+            "AMA session's state should be Paused"
+        );
+        _;
+    }
+    modifier amaEnded(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].state == SessionState.Ended,
+            "AMA session's state should be Ended"
+        );
+        _;
+    }
+    modifier canJoinAma(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].state == SessionState.Paused ||
+                amaSessions[sessionId].state == SessionState.Active,
+            "AMA session's state should be Paused or Active"
+        );
+        _;
+    }
+    modifier amaExists(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].owner != address(0),
+            "AMA session does not exist"
+        );
+        _;
+    }
+    modifier onlyAmaSessionOwner(uint256 sessionId) {
+        require(
+            amaSessions[sessionId].owner == msg.sender,
+            "You are not the owner of this AMA session"
+        );
+        _;
+    }
+
+    /** 
+        FUNCTIONS
+    */
+    // Session state changes
+    function startAmaSession(uint256 sessionId)
+        external
+        onlyAmaSessionOwner(sessionId)
+        amaNotStarted(sessionId)
+    {
+        amaSessions[sessionId].state = SessionState.Active;
+        emit AmaSessionActive(sessionId);
+    }
+
+    function resumeAmaSession(uint256 sessionId)
+        external
+        onlyAmaSessionOwner(sessionId)
+        amaPaused(sessionId)
+    {
+        amaSessions[sessionId].state = SessionState.Active;
+        emit AmaSessionActive(sessionId);
+    }
+
+    function pauseAmaSession(uint256 sessionId)
+        external
+        onlyAmaSessionOwner(sessionId)
+        amaActive(sessionId)
+    {
+        amaSessions[sessionId].state = SessionState.Paused;
+        emit AmaSessionPaused(sessionId);
+    }
+
+    function endAmaSession(uint256 sessionId)
+        external
+        onlyAmaSessionOwner(sessionId)
+    {
+        amaSessions[sessionId].state = SessionState.Ended;
+        emit AmaSessionEnded(sessionId);
+    }
+
+    // Session activities
     function createAmaSession(
         uint256 sessionId,
         uint8 depth,
-        string calldata title,
-        string calldata pinHash
+        bytes32 accessCodeHash
     ) external {
         _createGroup(sessionId, depth, 0);
 
         amaSessions[sessionId] = AmaSession({
             sessionId: sessionId,
-            title: title,
-            pinHash: pinHash,
+            accessCodeHash: accessCodeHash,
             owner: msg.sender,
             state: SessionState.NotStarted
         });
@@ -84,11 +179,12 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionCreated(sessionId);
     }
 
-    function joinAmaSession(uint256 sessionId, uint256 identityCommitment)
-        external
-    {
+    function joinAmaSession(
+        uint256 sessionId,
+        uint256 identityCommitment,
+        bytes32 accessCodeHash
+    ) external hasAccess(sessionId, accessCodeHash) canJoinAma(sessionId) {
         _addMember(sessionId, identityCommitment);
-
         amaSessionIdentityCommitments[sessionId].push(identityCommitment);
 
         emit UserJoinedAmaSession(sessionId, identityCommitment);
@@ -117,30 +213,15 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     //     emit UserLeftAmaSession(sessionId, identityCommitment);
     // }
 
-    // Only users who create valid proofs can greet.
-    // The contract owner must only send the transaction and they will not know anything
-    // about the identity of the greeters.
-    // The external nullifier is in this example the root of the Merkle tree.
     function postQuestion(
         uint256 sessionId,
-        string calldata question,
+        uint256 questionId,
         bytes32 signal,
         uint256 root,
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external {
-        // TODO: check that sessionId exists
-        // require(amaSessions[sessionId].id > 0, "AMA session does not exist");
-
-        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
-        // require(
-        //     amaSessionQuestion[id].votes == 0,
-        //     "Duplicate question for this AMA session"
-        // );
-
-        emit NewQuestion(sessionId, signal);
-
+    ) external amaExists(sessionId) amaActive(sessionId) {
         require(
             _isValidProof(
                 signal,
@@ -153,34 +234,25 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             "AMA: the proof is not valid"
         );
 
-        // TODO: use safemath to increment questionId
-        Question memory q = Question({text: question, votes: 0});
+        bytes32 id = keccak256(abi.encodePacked(sessionId, questionId));
+        Question memory q = Question({questionId: questionId, votes: 0});
         amaSessionQuestion[id] = q;
-        _questionIdCounter.increment();
 
-        // store question in ama session
-        amaSessionQuestionList[sessionId].push(_questionIdCounter.current());
-
-        // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
-        // Every user can greet once.
+        // Prevent double-posting of the same question in the same ama session
         _saveNullifierHash(nullifierHash);
 
-        emit NewQuestion(sessionId, signal);
+        emit NewQuestion(sessionId, questionId, signal);
     }
 
     function voteQuestion(
         uint256 sessionId,
+        uint256 questionId,
         bytes32 signal,
         uint256 root,
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external {
-        // TODO: check that sessionId exists
-        // require(amaSessionQuestions[sessionId]., "AMA session does not exist");
-
-        // bytes32 signal = keccak256(abi.encodePacked(sessionId, _question));
-
+    ) external amaExists(sessionId) amaActive(sessionId) {
         require(
             _isValidProof(
                 signal,
@@ -197,19 +269,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
         amaSessionQuestion[id].votes += 1;
 
-        // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
-        // Every user can greet once.
+        // Prevent double-voting of the same question in the same ama session
         _saveNullifierHash(nullifierHash);
 
-        emit QuestionVoted(sessionId, signal, amaSessionQuestion[id].votes);
-    }
-
-    function getQuestionsForSession(uint256 sessionId)
-        public
-        view
-        returns (uint256[] memory)
-    {
-        // TODO: get question data based on questionIds
-        return amaSessionQuestionList[sessionId];
+        emit QuestionVoted(sessionId, questionId, amaSessionQuestion[id].votes);
     }
 }
