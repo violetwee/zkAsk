@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // A new greeting is published every time a user's proof is validated.
     event NewQuestion(uint256 sessionId, bytes32 signal);
-    event QuestionVoted(uint256 sessionId, bytes32 signal);
+    event QuestionVoted(uint256 sessionId, bytes32 signal, uint256 votes);
     event AmaSessionCreated(uint256 indexed groupId);
     event UserJoinedAmaSession(
         uint256 indexed groupId,
@@ -126,9 +126,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         string calldata question,
         bytes32 signal,
         uint256 root,
-        uint256 _nullifierHash,
+        uint256 nullifierHash,
         uint256 externalNullifier,
-        uint256[8] calldata _proof
+        uint256[8] calldata proof
     ) external {
         // TODO: check that sessionId exists
         // require(amaSessions[sessionId].id > 0, "AMA session does not exist");
@@ -145,9 +145,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             _isValidProof(
                 signal,
                 root,
-                _nullifierHash,
+                nullifierHash,
                 externalNullifier,
-                _proof,
+                proof,
                 verifier
             ),
             "AMA: the proof is not valid"
@@ -163,7 +163,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
 
         // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
         // Every user can greet once.
-        _saveNullifierHash(_nullifierHash);
+        _saveNullifierHash(nullifierHash);
 
         emit NewQuestion(sessionId, signal);
     }
@@ -172,9 +172,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 sessionId,
         bytes32 signal,
         uint256 root,
-        uint256 _nullifierHash,
+        uint256 nullifierHash,
         uint256 externalNullifier,
-        uint256[8] calldata _proof
+        uint256[8] calldata proof
     ) external {
         // TODO: check that sessionId exists
         // require(amaSessionQuestions[sessionId]., "AMA session does not exist");
@@ -185,9 +185,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             _isValidProof(
                 signal,
                 root,
-                _nullifierHash,
+                nullifierHash,
                 externalNullifier,
-                _proof,
+                proof,
                 verifier
             ),
             "AMA: the proof is not valid"
@@ -199,9 +199,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
 
         // Prevent double-greeting (nullifierHash = hash(root + identityNullifier)).
         // Every user can greet once.
-        _saveNullifierHash(_nullifierHash);
+        _saveNullifierHash(nullifierHash);
 
-        emit QuestionVoted(sessionId, signal);
+        emit QuestionVoted(sessionId, signal, amaSessionQuestion[id].votes);
     }
 
     function getQuestionsForSession(uint256 sessionId)
@@ -209,6 +209,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         view
         returns (uint256[] memory)
     {
+        // TODO: get question data based on questionIds
         return amaSessionQuestionList[sessionId];
     }
 }
