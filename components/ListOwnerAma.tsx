@@ -1,7 +1,7 @@
 import React from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
-
+import  getStatusName  from "../lib/utils"
 // reactstrap components
 import {
   Button,
@@ -9,7 +9,9 @@ import {
 } from "reactstrap";
 
 export default function ListOwnerAma() {
-  const [data, setData] = React.useState(null)
+  const [sessions, setSessions] = React.useState(null)
+  const [sessionData, setSessionData] = React.useState(null)
+  let owner: string;
 
   const loadAmaSessions = async () => {
     let signer: providers.JsonRpcSigner;
@@ -20,7 +22,7 @@ export default function ListOwnerAma() {
     signer = ethersProvider.getSigner()
     await signer.signMessage("Sign this message to access Host features!")
 
-    let owner = await signer.getAddress();
+    owner = await signer.getAddress();
     const endpoint = `/api/sessions/${owner}`;
 
     const options = {
@@ -35,14 +37,39 @@ export default function ListOwnerAma() {
         console.log(errorMessage)
     } else {
         console.log("AMA sessions fetched")
-        setData(result)
+        result.map(r => {
+          r.statusName = getStatusName(r.status)
+        })
+        setSessions(result)
+    }
+  }
+
+  const handleView = async (sessionId : React.ChangeEvent<HTMLInputElement>) => {
+    console.log("handle view for = ", sessionId, owner)
+    const endpoint = `/api/session/${sessionId}`;
+
+    const options = {
+        method: 'GET'
+      }
+  
+      const response = await fetch(endpoint, options)
+      let result = await response.json()
+      console.log("session data = ", result)
+    if (response.status === 500) {
+        const errorMessage = await response.text()
+        console.log(errorMessage)
+    } else {
+        console.log("AMA sessions fetched")
+
+        result.statusName = getStatusName(result.status)
+        setSessionData(result)
     }
   }
 
   return (
     <div>
       <h1 className="display-3 text-center p-5">My AMA Sessions</h1>
-      <Button className="mb-3" color="primary" onClick={loadAmaSessions}>Load AMAs</Button>
+      <Button className="mb-3" color="primary" onClick={loadAmaSessions}>Load AMA Sessions</Button>
       <div>
         <Table>
           <thead>
@@ -60,24 +87,44 @@ export default function ListOwnerAma() {
                 Host
               </th>
               <th>
+                Status
+              </th>
+              <th>
                 Action
               </th>
             </tr>
           </thead>
           <tbody>
-            {data && data.map((session, index) => 
+            {sessions && sessions.map((session, index) => 
             <tr key={session.sessionId}>
               <td>{index+1}</td>
               <td>{session.name}</td>
               <td>{session.description}</td>
               <td>{session.hosts}</td>
-              
-              <td>{session.status === 1 ? <Button color="success">Start</Button> : session.status === 2 ? 
+              <td>{session.statusName}</td>
+              <td><Button color="success" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
+              {/* <td>{session.status === 1 ? <Button color="success">Start</Button> : session.status === 2 ? 
                 <div><Button color="info">Resume</Button> <Button color="danger">End</Button></div>: session.status === 3 ? 
-                <div><Button color="warning">Pause</Button> <Button color="danger">End</Button></div>: "Ended"}</td>
+                <div><Button color="warning">Pause</Button> <Button color="danger">End</Button></div>: "Ended"}</td> */}
             </tr>)}
           </tbody>
         </Table>
+      </div>
+      {/* Session data */}
+      <div>
+        {sessionData &&
+          <div>
+            <h1 className="display-3 text-center p-5">{sessionData.name}</h1>
+            <h4 className="text-center pb-5">{sessionData.description}</h4>
+            <h5 className="text-center">HOSTED BY:</h5>
+            <h4 className="text-center">{sessionData.hosts}</h4>
+
+            <div className="text-center p-3">{sessionData.status === 1 ? <Button color="success">Start</Button> : sessionData.status === 2 ? 
+                <div><Button color="info">Resume</Button> <Button color="danger">End</Button></div>: sessionData.status === 3 ? 
+                <div><Button color="warning">Pause</Button> <Button color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
+            </div>
+          </div>
+        }
       </div>
     </div>
   );

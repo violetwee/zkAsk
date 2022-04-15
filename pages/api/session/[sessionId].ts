@@ -7,13 +7,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } = req
 
   const result = await excuteQuery({
-    query: 'SELECT sessionId, name, hosts, description, owner, created_at, status) FROM ama_sessions WHERE sessionId = ?',
+    query: 'SELECT sessionId, name, hosts, description, owner, created_at, status FROM ama_sessions WHERE sessionId = ?',
     values: [sessionId]
   });
+  if (result && result.length > 0)
+    return res.status(200).send(result[0])
 
-  console.log(result)
-  if (result && result.ok) {
-    res.status(200).send(result)
-  }
-  else res.status(result.status).send(result)
+  return res.status(500).send(new Error("Unable to fetch session data"))
 }
