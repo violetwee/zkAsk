@@ -7,6 +7,7 @@ import {
   Button,
   Table
 } from "reactstrap";
+import { CONSTANTS } from "lib/constants";
 
 export default function ListOwnerAma() {
   const [sessions, setSessions] = React.useState(null)
@@ -37,7 +38,7 @@ export default function ListOwnerAma() {
         console.log(errorMessage)
     } else {
         console.log("AMA sessions fetched")
-        result.map(r => {
+        result.map((r: { statusName: string; status: any; }) => {
           r.statusName = getStatusName(r.status)
         })
         setSessions(result)
@@ -45,7 +46,7 @@ export default function ListOwnerAma() {
   }
 
   const handleView = async (sessionId : React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handle view for = ", sessionId, owner)
+    console.log("handle view for = ", sessionId)
     const endpoint = `/api/session/${sessionId}`;
 
     const options = {
@@ -65,6 +66,13 @@ export default function ListOwnerAma() {
         setSessionData(result)
     }
   }
+
+  const handleStatus = async (status : React.ChangeEvent<HTMLInputElement>) => {
+    console.log("handle status change: ", status)
+    // const { name } = event.target;
+    // console.log(name)
+  }
+
 
   return (
     <div>
@@ -95,7 +103,7 @@ export default function ListOwnerAma() {
             </tr>
           </thead>
           <tbody>
-            {sessions && sessions.map((session, index) => 
+            {sessions && sessions.map((session: { sessionId: React.ChangeEvent<HTMLInputElement> | React.Key | null | undefined; name: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; description: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; hosts: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; statusName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => 
             <tr key={session.sessionId}>
               <td>{index+1}</td>
               <td>{session.name}</td>
@@ -119,9 +127,9 @@ export default function ListOwnerAma() {
             <h5 className="text-center">HOSTED BY:</h5>
             <h4 className="text-center">{sessionData.hosts}</h4>
 
-            <div className="text-center p-3">{sessionData.status === 1 ? <Button color="success">Start</Button> : sessionData.status === 2 ? 
-                <div><Button color="info">Resume</Button> <Button color="danger">End</Button></div>: sessionData.status === 3 ? 
-                <div><Button color="warning">Pause</Button> <Button color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
+            <div className="text-center p-3">{sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.status)}>Start</Button> : sessionData.status === 2 ? 
+                <div><Button onClick={() => handleStatus} color="info">Resume</Button> <Button onClick={() => handleStatus} color="danger">End</Button></div>: sessionData.status === 3 ? 
+                <div><Button onClick={() => handleStatus} color="warning">Pause</Button> <Button color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
             </div>
           </div>
         }
