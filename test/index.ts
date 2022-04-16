@@ -33,7 +33,7 @@ describe("AMA", function () {
         audience1 = signers[1];
         audience2 = signers[2];
 
-        accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
+        accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode)); // for v2
     })
 
     describe("# AMA sessions (a.k.a Semaphore Groups)", () => {

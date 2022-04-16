@@ -2,13 +2,14 @@ import AMA from "artifacts/contracts/AMA.sol/AMA.json"
 import { Contract, providers, utils } from "ethers"
 import type { NextApiRequest, NextApiResponse } from "next"
 import excuteQuery from '../../../lib/db'
+import { CONSTANTS } from '../../../lib/constants'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     console.log("body: ", req.body);
     const { name, host, desc, accessCode, owner } = req.body;
 
-    const contract = new Contract("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", AMA.abi)
-    const provider = new providers.JsonRpcProvider("http://localhost:8545")
+    const contract = new Contract(CONSTANTS.AMA_CONTRACT_ADDRESS, AMA.abi)
+    const provider = new providers.JsonRpcProvider(CONSTANTS.NETWORK_URL)
     const contractOwner = contract.connect(provider.getSigner())
 
     try {

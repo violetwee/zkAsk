@@ -45,7 +45,7 @@ export default function ListOwnerAma() {
     }
   }
 
-  const handleView = async (sessionId : React.ChangeEvent<HTMLInputElement>) => {
+  const handleView = async (sessionId : number) => {
     console.log("handle view for = ", sessionId)
     const endpoint = `/api/session/${sessionId}`;
 
@@ -67,12 +67,30 @@ export default function ListOwnerAma() {
     }
   }
 
-  const handleStatus = async (status : React.ChangeEvent<HTMLInputElement>) => {
-    console.log("handle status change: ", status)
-    // const { name } = event.target;
-    // console.log(name)
-  }
+  const handleStatus = async ( sessionId: number, command: string) => {
+    console.log("handle status change: for ", sessionId, command)
+    const endpoint = `/api/session/status/${sessionId}`;
 
+    const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ command: command, ownerAddress: owner })
+      }
+  
+      const response = await fetch(endpoint, options)
+      let result = await response.json()
+      
+    if (response.status === 500) {
+        console.log("Error:", response)
+    } else {
+        console.log("AMA session status updated", result)
+        // refresh page with updated data
+        await loadAmaSessions()
+        await handleView(sessionId)
+    }
+  }
 
   return (
     <div>
@@ -127,9 +145,9 @@ export default function ListOwnerAma() {
             <h5 className="text-center">HOSTED BY:</h5>
             <h4 className="text-center">{sessionData.hosts}</h4>
 
-            <div className="text-center p-3">{sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.status)}>Start</Button> : sessionData.status === 2 ? 
-                <div><Button onClick={() => handleStatus} color="info">Resume</Button> <Button onClick={() => handleStatus} color="danger">End</Button></div>: sessionData.status === 3 ? 
-                <div><Button onClick={() => handleStatus} color="warning">Pause</Button> <Button color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
+            <div className="text-center p-3">{sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.sessionId, 'start')}>Start</Button> : sessionData.status === 2 ? 
+                <div><Button onClick={() => handleStatus(sessionData.sessionId, 'resume')} color="info">Resume</Button> <Button onClick={() => handleStatus(sessionData.sessionId, 'end')} color="danger">End</Button></div>: sessionData.status === 3 ? 
+                <div><Button onClick={() => handleStatus(sessionData.sessionId, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(sessionData.sessionId, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
             </div>
           </div>
         }

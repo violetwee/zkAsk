@@ -188,6 +188,14 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit UserJoinedAmaSession(sessionId, identityCommitment);
     }
 
+    function getAmaSession(uint256 sessionId)
+        external
+        view
+        returns (AmaSession memory)
+    {
+        return amaSessions[sessionId];
+    }
+
     function getIdentityCommitments(uint256 sessionId)
         external
         view
