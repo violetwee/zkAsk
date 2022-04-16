@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import excuteQuery from '../../../../lib/db'
 import { CONSTANTS } from '../../../../lib/constants'
 import AMA from "artifacts/contracts/AMA.sol/AMA.json"
-import { Contract, providers, utils } from "ethers"
+import { Contract, providers } from "ethers"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log("body: ", req.body);

@@ -1,8 +1,7 @@
 import Head from "next/head"
 import React from "react"
 import styles from "../styles/Home.module.css"
-import CreateAmaForm from "../components/CreateAmaForm"
-import ListOwnerAma from "../components/ListOwnerAma"
+import ListActiveAma from "../components/ListActiveAma"
 import Navbar from "../components/Navbar"
 
 export default function Home() {
@@ -17,8 +16,7 @@ export default function Home() {
             <Navbar />
             <div className={styles.container}>
             <main className={styles.main}>
-                <CreateAmaForm/>
-                <ListOwnerAma />
+                <ListActiveAma/>
             </main>
             </div>
         </div>

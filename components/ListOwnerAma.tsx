@@ -7,7 +7,6 @@ import {
   Button,
   Table
 } from "reactstrap";
-import { CONSTANTS } from "lib/constants";
 
 export default function ListOwnerAma() {
   const [sessions, setSessions] = React.useState(null)
