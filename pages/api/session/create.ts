@@ -14,16 +14,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         // save ama session to off-chain database
+        let accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
         const result = await excuteQuery({
-            query: 'INSERT INTO ama_sessions (name, hosts, description, created_at, owner) VALUES (?, ?, ?, ?, ?)',
-            values: [name, host, desc, Math.floor(Date.now() / 1000), owner]
+            query: 'INSERT INTO ama_sessions (name, hosts, description, created_at, owner, access_code_hash) VALUES (?, ?, ?, ?, ?, ?)',
+            values: [name, host, desc, Math.floor(Date.now() / 1000), owner, accessCodeHash]
         });
 
         console.log(result)
         if (result && result.insertId) {
             // save session id on-chain 
-            let accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
-            await contractOwner.createAmaSession(result.insertId, accessCodeHash);
+            await contractOwner.createAmaSession(result.insertId);
 
             res.status(200).end()
         } else {

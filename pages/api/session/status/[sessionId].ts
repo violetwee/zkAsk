@@ -39,13 +39,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // listen for onchain event
   // if onchain updated successfully, update status offchain
-  contract.on("AmaSessionActive", async (sId) => {
-    console.log("AmaSessionActive: ", sId.toNumber())
+  contract.on("AmaSessionStatusChanged", async (sId) => {
+    console.log("AmaSessionStatusChanged: ", sId.toNumber())
     const result = await excuteQuery({
       query: 'UPDATE ama_sessions SET status = ? WHERE sessionId = ?',
       values: [newStatus, sessionId]
     });
-    console.log("AmaSessionActive / update DB: ", result)
+    console.log("AmaSessionStatusChanged / update DB: ", result)
     if (result)
       res.status(200).send(result)
     else res.status(500).send("Unable to update session status")

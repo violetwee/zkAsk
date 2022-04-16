@@ -22,10 +22,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 indexed sessionId,
         uint256 identityCommitment
     );
-
-    event AmaSessionActive(uint256 sessionId);
-    event AmaSessionPaused(uint256 sessionId);
-    event AmaSessionEnded(uint256 sessionId);
+    event AmaSessionStatusChanged(uint256 sessionId);
 
     // NotStarted: Allows host to pre-create AMA session but keep it as inactive state. Audience may join but cannot post questions yet
     // Active: Audience may post questions
@@ -41,7 +38,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     struct AmaSession {
         uint256 sessionId;
         address owner;
-        bytes32 accessCodeHash; // only users with the access code can join the AMA session
         SessionState state;
     }
 
@@ -64,13 +60,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     /** 
         MODIFIERS
     */
-    modifier hasAccess(uint256 sessionId, bytes32 accessCodeHash) {
-        require(
-            amaSessions[sessionId].accessCodeHash == accessCodeHash,
-            "You do not have access to this AMA session"
-        );
-        _;
-    }
     modifier amaNotStarted(uint256 sessionId) {
         require(
             amaSessions[sessionId].state == SessionState.NotStarted,
@@ -132,7 +121,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         amaNotStarted(sessionId)
     {
         amaSessions[sessionId].state = SessionState.Active;
-        emit AmaSessionActive(sessionId);
+        emit AmaSessionStatusChanged(sessionId);
     }
 
     function resumeAmaSession(uint256 sessionId)
@@ -141,7 +130,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         amaPaused(sessionId)
     {
         amaSessions[sessionId].state = SessionState.Active;
-        emit AmaSessionActive(sessionId);
+        emit AmaSessionStatusChanged(sessionId);
     }
 
     function pauseAmaSession(uint256 sessionId)
@@ -150,7 +139,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         amaActive(sessionId)
     {
         amaSessions[sessionId].state = SessionState.Paused;
-        emit AmaSessionPaused(sessionId);
+        emit AmaSessionStatusChanged(sessionId);
     }
 
     function endAmaSession(uint256 sessionId)
@@ -158,18 +147,15 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         onlyAmaSessionOwner(sessionId)
     {
         amaSessions[sessionId].state = SessionState.Ended;
-        emit AmaSessionEnded(sessionId);
+        emit AmaSessionStatusChanged(sessionId);
     }
 
     // Session activities
-    function createAmaSession(uint256 sessionId, bytes32 accessCodeHash)
-        external
-    {
+    function createAmaSession(uint256 sessionId) external {
         _createGroup(sessionId, 20, 0);
 
         amaSessions[sessionId] = AmaSession({
             sessionId: sessionId,
-            accessCodeHash: accessCodeHash,
             owner: msg.sender,
             state: SessionState.NotStarted
         });
@@ -177,11 +163,10 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionCreated(sessionId);
     }
 
-    function joinAmaSession(
-        uint256 sessionId,
-        uint256 identityCommitment,
-        bytes32 accessCodeHash
-    ) external hasAccess(sessionId, accessCodeHash) canJoinAma(sessionId) {
+    function joinAmaSession(uint256 sessionId, uint256 identityCommitment)
+        external
+        canJoinAma(sessionId)
+    {
         _addMember(sessionId, identityCommitment);
         amaSessionIdentityCommitments[sessionId].push(identityCommitment);
 

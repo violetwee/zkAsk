@@ -1,7 +1,7 @@
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { generateMerkleProof, genExternalNullifier, Semaphore, StrBigInt } from "@zk-kit/protocols"
 import { expect } from "chai"
-import { Contract, Signer, utils } from "ethers"
+import { Contract, Signer } from "ethers"
 import { ethers, run } from "hardhat"
 
 describe("AMA", function () {
@@ -23,38 +23,33 @@ describe("AMA", function () {
     let audience1: Signer;
     let audience2: Signer;
 
-    let accessCode = "123456";
-    let accessCodeHash: string;
-
     before(async () => {
         contract = await run("deploy", { logs: false })
         signers = await ethers.getSigners()
         audience0 = signers[0];
         audience1 = signers[1];
         audience2 = signers[2];
-
-        accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode)); // for v2
     })
 
     describe("# AMA sessions (a.k.a Semaphore Groups)", () => {
         it("Should create an AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0], accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[0]);
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[0])
         })
 
         it("Should not create a duplicated AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0], accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[0]);
             await expect(transaction).to.be.revertedWith("SemaphoreGroups: group already exists");
         })
 
         it("Should be able to create another AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[1], accessCodeHash);
+            const transaction = contract.createAmaSession(sessionIds[1]);
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[1]);
         })
 
         it("Should start the AMA session", async () => {
             const transaction = contract.startAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionActive").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
         })
 
         it("Should join an AMA session (audience0)", async () => {
@@ -64,8 +59,7 @@ describe("AMA", function () {
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
             const identityCommitment = identity.genIdentityCommitment()
 
-            // join session: joinAmaSession(uint256 sessionId, uint256 identityCommitment)
-            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment, accessCodeHash);
+            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment);
             await expect(transaction).to.emit(contract, "UserJoinedAmaSession").withArgs(sessionIds[0], identityCommitment)
         })
 
@@ -76,8 +70,7 @@ describe("AMA", function () {
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
             const identityCommitment = identity.genIdentityCommitment()
 
-            // join session: joinAmaSession(uint256 sessionId, uint256 identityCommitment)
-            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment, accessCodeHash);
+            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment);
             await expect(transaction).to.emit(contract, "UserJoinedAmaSession").withArgs(sessionIds[0], identityCommitment)
         })
 
@@ -88,8 +81,7 @@ describe("AMA", function () {
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
             const identityCommitment = identity.genIdentityCommitment()
 
-            // join session: joinAmaSession(uint256 sessionId, uint256 identityCommitment)
-            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment, accessCodeHash);
+            const transaction = contract.joinAmaSession(sessionIds[0], identityCommitment);
             await expect(transaction).to.emit(contract, "UserJoinedAmaSession").withArgs(sessionIds[0], identityCommitment)
         })
     })
@@ -261,17 +253,17 @@ describe("AMA", function () {
     describe("AMA session state checks", () => {
         it("Should pause the AMA session", async () => {
             const transaction = contract.pauseAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionPaused").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
         })
 
         it("Should resume a paused AMA session", async () => {
             const transaction = contract.resumeAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionActive").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
         })
 
         it("Should end the AMA session", async () => {
             const transaction = contract.endAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionEnded").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
         })
 
         it("Should not start an AMA session that has ended", async () => {

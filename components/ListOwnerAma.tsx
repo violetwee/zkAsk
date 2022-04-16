@@ -129,9 +129,6 @@ export default function ListOwnerAma() {
               <td>{session.hosts}</td>
               <td>{session.statusName}</td>
               <td><Button color="success" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
-              {/* <td>{session.status === 1 ? <Button color="success">Start</Button> : session.status === 2 ? 
-                <div><Button color="info">Resume</Button> <Button color="danger">End</Button></div>: session.status === 3 ? 
-                <div><Button color="warning">Pause</Button> <Button color="danger">End</Button></div>: "Ended"}</td> */}
             </tr>)}
           </tbody>
         </Table>

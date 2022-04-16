@@ -130,7 +130,6 @@ export default function CreateAmaForm() {
                 />
               </FormGroup>
             </Col>
-            
           </Row>
           <Row>
           <Col md="12">
