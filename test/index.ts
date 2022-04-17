@@ -52,7 +52,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
         })
 
-        it("Should join an AMA session (alice)", async () => {
+        it("Should join an AMA session (Alice)", async () => {
             // create an identity commitment for the user
             const message = await alice.signMessage(IDENTITY_MESSAGE)
 
@@ -63,7 +63,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "UserJoinedAmaSession").withArgs(sessionIds[0], identityCommitment)
         })
 
-        it("Should join an AMA session (bob)", async () => {
+        it("Should join an AMA session (Bob)", async () => {
             // create an identity commitment for the user
             const message = await bob.signMessage(IDENTITY_MESSAGE)
 
@@ -74,7 +74,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "UserJoinedAmaSession").withArgs(sessionIds[0], identityCommitment)
         })
 
-        it("Should join an AMA session (charlie)", async () => {
+        it("Should join an AMA session (Charlie)", async () => {
             // create an identity commitment for the user
             const message = await charlie.signMessage(IDENTITY_MESSAGE)
 
@@ -108,7 +108,7 @@ describe("AMA", function () {
             }
         });
 
-        it("Should post a question to AMA session 1", async () => {
+        it("Should post a question to AMA session #1 (Alice)", async () => {
             const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment);
             const nullifier = `${sessionIds[0]}_${questionIds[0]}`;
             const externalNullifier = genExternalNullifier(nullifier);
@@ -129,7 +129,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "NewQuestion").withArgs(sessionIds[0], questionIds[0], bytes32Signal0)
         })
 
-        it("Should post another question to AMA session 1", async () => {
+        it("Should post another question to AMA session #1 (Alice)", async () => {
             const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment);
             const nullifier = `${sessionIds[0]}_${questionIds[1]}`;
             const externalNullifier = genExternalNullifier(nullifier);
@@ -150,7 +150,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "NewQuestion").withArgs(sessionIds[0], questionIds[1], bytes32Signal0)
         })
 
-        it("Should not post same question to AMA session 1", async () => {
+        it("Should not post same question to AMA session #1 (Alice)", async () => {
             const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment);
             const nullifier = `${sessionIds[0]}_${questionIds[1]}`;
             const externalNullifier = genExternalNullifier(nullifier);
@@ -171,7 +171,7 @@ describe("AMA", function () {
             await expect(transaction).to.be.revertedWith("SemaphoreCore: you cannot use the same nullifier twice");
         })
 
-        it("Should not post and vote the same question in an AMA session", async () => {
+        it("Should not post and vote the same question to AMA session #1 (Alice)", async () => {
             // user who posts the question cannot upvote his/her own question
             const merkleProof = generateMerkleProof(DEPTH, ZERO_VALUE, identityCommitments, identityCommitment);
             const nullifier = `${sessionIds[0]}_${questionIds[1]}`;
@@ -193,7 +193,7 @@ describe("AMA", function () {
             await expect(transaction).to.be.revertedWith("SemaphoreCore: you cannot use the same nullifier twice");
         })
 
-        it("Should upvote a question in an AMA session (Question #1)", async () => {
+        it("Should upvote Alice's question in AMA session #1 (Bob -> Question #1)", async () => {
             // create an identity commitment for the user
             const message = await bob.signMessage(IDENTITY_MESSAGE)
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
@@ -221,7 +221,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "QuestionVoted").withArgs(sessionIds[0], questionIds[0], 1) // 1 vote
         })
 
-        it("Should upvote the same question in an AMA session (Question #1)", async () => {
+        it("Should upvote Alice's question in AMA session #1 (Charlie -> Question #1)", async () => {
             // create an identity commitment for the user
             const message = await charlie.signMessage(IDENTITY_MESSAGE)
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
@@ -249,7 +249,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "QuestionVoted").withArgs(sessionIds[0], questionIds[0], 2) // 2 votes: 1 from bob and 1 from charlie
         })
 
-        it("Should upvote another question in an AMA session (Question #2)", async () => {
+        it("Should upvote Alice's second question in AMA session #1 (Bob -> Question #2)", async () => {
             // create an identity commitment for the user
             const message = await bob.signMessage(IDENTITY_MESSAGE)
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
@@ -277,7 +277,7 @@ describe("AMA", function () {
             await expect(transaction).to.emit(contract, "QuestionVoted").withArgs(sessionIds[0], questionIds[1], 1) // 1 vote
         })
 
-        it("Should not upvote the same question in an AMA session", async () => {
+        it("Should not upvote Alice's second question in AMA session #1 (Bob -> Question #2)", async () => {
             // create an identity commitment for the user
             const message = await bob.signMessage(IDENTITY_MESSAGE)
             const identity = new ZkIdentity(Strategy.MESSAGE, message)
@@ -306,7 +306,7 @@ describe("AMA", function () {
         })
     })
 
-    describe("AMA session state checks", () => {
+    describe("# AMA session state checks", () => {
         it("Should pause the AMA session", async () => {
             const transaction = contract.pauseAmaSession(sessionIds[0]);
             await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])

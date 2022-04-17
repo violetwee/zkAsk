@@ -77,7 +77,7 @@ export default function ListOwnerAma() {
 
   return (
     <div>
-      <h1 className="display-3 text-center p-5">AMA Sessions : Live</h1>
+      <h1 className="display-3 text-center p-5">AMA Sessions : Now on Air</h1>
       <Button className="mb-3" color="primary" onClick={loadAmaSessions}>Load AMA Sessions</Button>
       <div>
         <Table>
