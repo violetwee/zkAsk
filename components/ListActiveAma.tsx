@@ -3,7 +3,8 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import PostQuestionForm from "./PostQuestionForm"
-import  getStatusName  from "../lib/utils"
+import ListQuestions from "./ListQuestions"
+import { getStatusName, getSessionName }  from "../lib/utils"
 
 import {
   Button,
@@ -14,16 +15,12 @@ export default function ListOwnerAma() {
   const [sessions, setSessions] = React.useState(null)
   const [hasJoined, setHasJoined] = React.useState(false)
   const [sessionId, setSessionId] = React.useState(0)
+  const [sessionName, setSessionName] = React.useState("")
 
   const loadAmaSessions = async () => {
-    
-    const endpoint = `/api/sessions`;
-
-    const options = {
+      const response = await fetch(`/api/sessions`, {
         method: 'GET'
-      }
-  
-      const response = await fetch(endpoint, options)
+      })
       let result = await response.json()
 
     if (response.status === 500) {
@@ -55,7 +52,6 @@ export default function ListOwnerAma() {
     const data = JSON.stringify({
       identityCommitment: identityCommitment.toString()
     })
-    const endpoint = `/api/session/join/${sessionId}`;
     const options = {
       method: "POST",
       headers: {
@@ -63,8 +59,7 @@ export default function ListOwnerAma() {
       },
       body: data
     }
-
-    const response = await fetch(endpoint, options);
+    const response = await fetch(`/api/session/join/${sessionId}`, options);
 
     if (response.status === 500) {
       console.log(response)
@@ -74,10 +69,9 @@ export default function ListOwnerAma() {
     } else {
         // setLogs("Your anonymous greeting is onchain :)")
         console.log("Joined AMA session successfully")
-        setHasJoined(true)
         setSessionId(sessionId)
-        // show post question component
-        // show all questions component
+        setHasJoined(true)
+        setSessionName(getSessionName(sessionId, sessions))
     }
   }
 
@@ -125,7 +119,9 @@ export default function ListOwnerAma() {
       {
         hasJoined && 
         <div>
+          <h1 className="display-3 text-center p-3">{sessionName}</h1>
           <PostQuestionForm sessionId={sessionId} />
+          <ListQuestions sessionId={sessionId} />
         </div>
       }
     </div>

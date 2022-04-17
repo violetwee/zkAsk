@@ -6,7 +6,6 @@ import { generateMerkleProof, genExternalNullifier, Semaphore } from "@zk-kit/pr
 
 import {
   FormGroup,
-  Label,
   Form,
   Input,
   Row,
@@ -18,7 +17,7 @@ const initialValues = {
   content: "Is zkSnarks or zkStarks better?"
 };
 
-export default function PosQuestionForm({sessionId}) {
+export default function PosQuestionForm({sessionId }) {
   const [values, setValues] = useState(initialValues);
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
@@ -42,58 +41,31 @@ export default function PosQuestionForm({sessionId}) {
     const identity = new ZkIdentity(Strategy.MESSAGE, message)
     const identityCommitment = identity.genIdentityCommitment()
 
-   
-    
-
-
-    
     const { content } = values;
     const signal = "post"
 
-    // insert question into db first, because we need it as nullifier
-    const data = JSON.stringify({
-      content
-    })
-    console.log(data)
-    const endpoint = `/api/question/insert/${sessionId}`;
-
+    // insert question into db first, because we need it the questionId as nullifier
     const options = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: data,
-      }
-  
-      const response = await fetch(endpoint, options)
-      const questionId = await response.json()
-      console.log("response", response)
-      console.log("result", questionId)
+        body: JSON.stringify({
+          content
+        }),
+    }
+    const response = await fetch(`/api/question/insert/${sessionId}`, options)
+    const questionId = await response.json()
 
-       // fetch all identity commitments from session so that we can generate proof
-    const endpointGetIdentityCommitments = `/api/session/identity/${sessionId}`;
+    // fetch all identity commitments from session so that we can generate proofs
+    const identityCommitments = await(await fetch(`/api/session/identity/${sessionId}`, {
+      method: 'GET'
+    })).json()
 
-    const optionsGetIdentityCommitments = {
-        method: 'GET'
-      }
-  
-      const responseGetIdentityCommitments = await fetch(endpointGetIdentityCommitments, optionsGetIdentityCommitments)
-      console.log("response", responseGetIdentityCommitments)
-      const identityCommitments = await responseGetIdentityCommitments.json()
-      console.log(identityCommitments)
-
-      console.log("my identity commitment", identityCommitment)
-      const merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
-
-      
-
+    // generate proofs
+    const merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
     const nullifier = `${sessionId}_${questionId}`;
-    const externalNullifier = genExternalNullifier(nullifier);
-    const questionNullifier = Semaphore.genNullifierHash(externalNullifier, identity.getNullifier())
-
-    console.log("nullifier = ", nullifier)
-    console.log("ext nullifier = ", externalNullifier)
-    console.log("question nullifier = ", questionNullifier)
+    const questionNullifier = Semaphore.genNullifierHash(genExternalNullifier(nullifier), identity.getNullifier())
 
     const witness = Semaphore.genWitness(
         identity.getTrapdoor(),
@@ -106,13 +78,6 @@ export default function PosQuestionForm({sessionId}) {
     const { proof, publicSignals } = await Semaphore.genProof(witness, "./semaphore.wasm", "./semaphore_final.zkey")
     const solidityProof = Semaphore.packToSolidityProof(proof)
 
-    console.log("public signals = ", publicSignals)
-
-    console.log("publicSignals.nullifierHash = ", publicSignals.nullifierHash)
-    console.log("publicSignals.externalNullifier = ", publicSignals.externalNullifier)
-    console.log("solidityProof = ", solidityProof)
-
-    // (sessionId, result.insertId, utils.formatBytes32String("post"), root, nullifierHash, externalNullifier, solidityProof)
     const res = await fetch(`/api/question/post/${sessionId}`, {
         method: "POST",
         body: JSON.stringify({
@@ -128,18 +93,16 @@ export default function PosQuestionForm({sessionId}) {
         console.log("Error", response)
     } else {
         console.log("Question posted onchain!")
+        setValues(initialValues)
     }
   }
 
   return (
-    <div>
-      <h1 className="display-3 text-center p-5">Post a Question</h1>
-    
+    <div className="p-3">
         <Form onSubmit={handleSubmit}>
           <Row>
             <Col md="12">
               <FormGroup floating>
-                <Label for="content">Question</Label>
                 <Input
                   id="content"
                   name="content"
@@ -152,12 +115,14 @@ export default function PosQuestionForm({sessionId}) {
           </Row>
           <Row>
           <Col md="12">
-              <FormGroup>
-                <Button color="primary" type="submit">
-                  Post Question
-                </Button>
-              </FormGroup>
-            </Col>
+            <FormGroup>
+            <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+              <Button color="primary" type="submit">
+                Post Question
+              </Button>
+            </div>
+            </FormGroup>
+          </Col>
           </Row>
         </Form>
         </div>
