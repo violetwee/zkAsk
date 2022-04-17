@@ -225,7 +225,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             "AMA: the proof is not valid"
         );
 
-        bytes32 id = keccak256(abi.encodePacked(sessionId, questionId));
+        // add votes to question. questionId is unique across all sessions
+        bytes32 id = keccak256(abi.encodePacked(questionId));
         Question memory q = Question({questionId: questionId, votes: 0});
         amaSessionQuestion[id] = q;
 
@@ -256,8 +257,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             "AMA: the proof is not valid"
         );
 
-        // add votes to question
-        bytes32 id = keccak256(abi.encodePacked(sessionId, signal));
+        // add votes to question. questionId is unique across all sessions
+        bytes32 id = keccak256(abi.encodePacked(questionId));
         amaSessionQuestion[id].votes += 1;
 
         // Prevent double-voting of the same question in the same ama session

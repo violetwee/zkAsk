@@ -1,7 +1,7 @@
 import React from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
-import  getStatusName  from "../lib/utils"
+import  { getStatusName }  from "../lib/utils"
 // reactstrap components
 import {
   Button,
