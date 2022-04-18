@@ -13,9 +13,13 @@ describe("AMA", function () {
     const FINAL_ZKEY_FILEPATH = "./public/semaphore_final.zkey"
     const IDENTITY_MESSAGE = "Sign this message to create your identity!";
 
-    // declare test session ids and question ids
+    // declare test data
     const sessionIds = [BigInt(1), BigInt(2)];
     const questionIds = [BigInt(1), BigInt(2)];
+    // declare session states
+    const PAUSED = 2;
+    const ACTIVE = 3;
+    const ENDED = 4;
 
     // declare some test accounts
     let signers: Signer[];
@@ -49,7 +53,7 @@ describe("AMA", function () {
 
         it("Should start the AMA session", async () => {
             const transaction = contract.startAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0], ACTIVE)
         })
 
         it("Should join an AMA session (Alice)", async () => {
@@ -309,17 +313,17 @@ describe("AMA", function () {
     describe("# AMA session state checks", () => {
         it("Should pause the AMA session", async () => {
             const transaction = contract.pauseAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0], PAUSED)
         })
 
         it("Should resume a paused AMA session", async () => {
             const transaction = contract.resumeAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0], ACTIVE)
         })
 
         it("Should end the AMA session", async () => {
             const transaction = contract.endAmaSession(sessionIds[0]);
-            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0])
+            await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0], ENDED)
         })
 
         it("Should not start an AMA session that has ended", async () => {

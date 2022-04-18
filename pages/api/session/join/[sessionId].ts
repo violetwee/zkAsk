@@ -15,12 +15,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const contractOwner = contract.connect(provider.getSigner())
 
   // join AMA session (a.k.a Semaphore Group)
-  await contractOwner.joinAmaSession(sessionId, BigNumber.from(identityCommitment));
-
-  // listen for onchain event
-  // if onchain updated successfully, update status offchain
-  contract.on("UserJoinedAmaSession", async (sId, iCommitment) => {
-    console.log("UserJoinedAmaSession: ", sId.toNumber(), iCommitment)
+  try {
+    await contractOwner.joinAmaSession(sessionId, BigNumber.from(identityCommitment));
     res.status(200).end()
-  })
+  } catch (error: any) {
+    const { message } = JSON.parse(error.body).error
+    const reason = message.substring(message.indexOf("'") + 1, message.lastIndexOf("'"))
+    res.status(500).send(reason || "Unknown error!")
+  }
 }

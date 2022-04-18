@@ -4,6 +4,8 @@ import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { generateMerkleProof, genExternalNullifier, Semaphore } from "@zk-kit/protocols"
 import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {
   Button,
@@ -82,10 +84,14 @@ export default function ListQuestions({sessionId}) {
     })
 
     if (res.status === 500) {
-        console.log("Error", res)
+      const errorMessage = await res.text()
+      console.log(errorMessage)
+      toast.error(errorMessage);
     } else {
         console.log("Question voted onchain!")
-        loadQuestions()
+        toast("Vote submitted onchain", {
+          onClose: () => loadQuestions()
+        })
     }
   }
 
@@ -94,7 +100,7 @@ export default function ListQuestions({sessionId}) {
       <div className="container">
         <div className="row align-items-start pt-3 pb-3">
           <div className="col">
-          <h5 className="">Questions {questions ? "(" + questions.length + ")" : ""}</h5>
+          <h5>Questions {questions ? "(" + questions.length + ")" : ""}</h5>
           </div>
           <div className="col">
           <Button type="button" className="btn btn-primary float-right" onClick={loadQuestions}><ArrowClockwise size="24" /></Button>
@@ -114,7 +120,7 @@ export default function ListQuestions({sessionId}) {
           </tbody>
         </Table>
       </div>
-      
+      <ToastContainer />
     </div>
   );
 }

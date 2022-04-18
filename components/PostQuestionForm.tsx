@@ -3,6 +3,8 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { generateMerkleProof, genExternalNullifier, Semaphore } from "@zk-kit/protocols"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {
   FormGroup,
@@ -91,8 +93,10 @@ export default function PosQuestionForm({sessionId }) {
 
     if (res.status === 500) {
         console.log("Error", response)
+        toast.error("Failed to post question")
     } else {
         console.log("Question posted onchain!")
+        toast("Question posted")
         setValues(initialValues)
     }
   }
@@ -125,6 +129,7 @@ export default function PosQuestionForm({sessionId }) {
           </Col>
           </Row>
         </Form>
-        </div>
+        <ToastContainer />
+    </div>
   );
 }

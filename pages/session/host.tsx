@@ -4,8 +4,30 @@ import styles from "../../styles/Host.module.css"
 import CreateAmaForm from "../../components/CreateAmaForm"
 import ListOwnerAma from "../../components/ListOwnerAma"
 import Navbar from "../../components/Navbar"
+import {
+    Container,
+    Row,
+    Col,
+    Nav,
+    NavItem,
+    NavLink
+  } from "reactstrap";
 
 export default function Host() {
+    const [menuSelection, setMenuSelection] = React.useState(1)
+    // const menu1 = [{
+    //     id: 1,
+    //     name: "Create an AMA Session"
+    // }, {
+    //     id: 2, 
+    //     name: 'My AMA Sessions'
+    // }];
+    // setMenuSelections(JSON.parse(menu1))
+
+    const showComponent = (menuId: number) => {
+        setMenuSelection(menuId)
+    }
+
     return (
         <div>
             <Head>
@@ -15,11 +37,46 @@ export default function Host() {
             </Head>
 
             <Navbar />
-            <div className={styles.container}>
-            <main className={styles.main}>
+
+            {/* Secondary Menu */}
+            <Container>
+            <Row>
+                <Col className="pt-5 pb-6 h5">
+                <Nav className="text-uppercase">
+                    <NavItem>
+                        <NavLink 
+                            active={(menuSelection == 1 ? true : false)}
+                            href="#"
+                            onClick={() => showComponent(1)}
+                            >
+                            Create
+                        </NavLink>
+                    </NavItem>
+                    |
+                    <NavItem>
+                        <NavLink
+                            active={(menuSelection == 2 ? true : false)}
+                            href="#"
+                            onClick={() => showComponent(2)}
+                            >
+                            My AMA Sessions
+                        </NavLink>
+                    </NavItem>
+                </Nav>
+                </Col>
+            </Row>
+            </Container>
+            
+
+            <div>
+            <main>
               
+              {menuSelection == 1 &&
                 <CreateAmaForm/>
+              }
+              {menuSelection == 2 &&
                 <ListOwnerAma/>
+              } 
             </main>
             </div>
         </div>

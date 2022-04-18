@@ -24,7 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (result && result.insertId) {
             // save session id on-chain 
             await contractOwner.createAmaSession(result.insertId);
-
             res.status(200).end()
         } else {
             console.log("Unable to create AMA session")

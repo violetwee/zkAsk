@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import PostQuestionForm from "./PostQuestionForm"
 import ListQuestions from "./ListQuestions"
 import { getStatusName, getSessionName }  from "../lib/utils"
+import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {
   Button,
@@ -17,6 +20,11 @@ export default function ListOwnerAma() {
   const [sessionId, setSessionId] = React.useState(0)
   const [sessionName, setSessionName] = React.useState("")
 
+  useEffect(() => {
+    loadAmaSessions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadAmaSessions = async () => {
       const response = await fetch(`/api/sessions`, {
         method: 'GET'
@@ -27,8 +35,10 @@ export default function ListOwnerAma() {
         console.log("Error: ", response)
     } else {
         console.log("AMA sessions fetched")
-        result.map((r: { statusName: string; status: any; }) => {
-          r.statusName = getStatusName(r.status)
+        const MAX_DESC_LENGTH = 100;
+        result.map((r: { statusName: string; status: any; description: string }) => {
+          r.statusName = getStatusName(r.status) // show status name instead of id
+          r.description = r.description.length > MAX_DESC_LENGTH ? r.description.substring(0, MAX_DESC_LENGTH) + '...' : r.description // show snippet of description
         })
         setSessions(result)
     }
@@ -36,7 +46,7 @@ export default function ListOwnerAma() {
 
   const handleJoin = async (sessionId : number) => {
     console.log("handle join for = ", sessionId)
-
+    
     // setLogs("Creating your Semaphore identity...")
 
     const provider = (await detectEthereumProvider()) as any
@@ -59,71 +69,83 @@ export default function ListOwnerAma() {
       },
       body: data
     }
-    const response = await fetch(`/api/session/join/${sessionId}`, options);
+    const res = await fetch(`/api/session/join/${sessionId}`, options);
 
-    if (response.status === 500) {
-      console.log(response)
-        // const errorMessage = await response.text()
-
-        // setLogs(errorMessage)
+    if (res.status === 500) {
+      console.log(res)
+      const errorMessage = await res.text()
+      console.log(errorMessage)
+      toast.error(errorMessage);
     } else {
         // setLogs("Your anonymous greeting is onchain :)")
         console.log("Joined AMA session successfully")
         setSessionId(sessionId)
         setHasJoined(true)
         setSessionName(getSessionName(sessionId, sessions))
+        toast("Joined AMA session")
     }
   }
 
   return (
     <div>
-      <h1 className="display-3 text-center p-5">AMA Sessions : Now on Air</h1>
-      <Button className="mb-3" color="primary" onClick={loadAmaSessions}>Load AMA Sessions</Button>
-      <div>
-        <Table>
-          <thead>
-            <tr>
-              <th>
-                #
-              </th>
-              <th>
-                Name
-              </th>
-              <th>
-                Description
-              </th>
-              <th>
-                Host
-              </th>
-              <th>
-                Status
-              </th>
-              <th>
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions && sessions.map((session: { sessionId: React.ChangeEvent<HTMLInputElement> | React.Key | null | undefined; name: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; description: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; hosts: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; statusName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => 
-            <tr key={session.sessionId}>
-              <td>{index+1}</td>
-              <td>{session.name}</td>
-              <td>{session.description}</td>
-              <td>{session.hosts}</td>
-              <td>{session.statusName}</td>
-              <td><Button color="success" onClick={() => handleJoin(session.sessionId)}>JOIN</Button></td>
-            </tr>)}
-          </tbody>
-        </Table>
-      </div>
-      {
+      <div className="container p-5">{!hasJoined &&
+        <div className="row">
+         <div className="col-10">
+            <h5 className="display-3">AMA Sessions : Now on Air</h5>
+          </div>
+          <div className="col-2">
+            <Button type="button" className="btn btn-primary float-right" onClick={loadAmaSessions}><ArrowClockwise size="24" /></Button>
+          </div>
+          <div className="col-12 pt-3">
+            <Table>
+              <thead>
+                <tr>
+                  <th>
+                    #
+                  </th>
+                  <th>
+                    Name
+                  </th>
+                  <th>
+                    Description
+                  </th>
+                  <th>
+                    Host
+                  </th>
+                  <th>
+                    Status
+                  </th>
+                  <th>
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessions && sessions.map((session: { sessionId: React.ChangeEvent<HTMLInputElement> | React.Key | null | undefined; name: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; description: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; hosts: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; statusName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => 
+                <tr key={session.sessionId}>
+                  <td>{index+1}</td>
+                  <td>{session.name}</td>
+                  <td>{session.description}</td>
+                  <td>{session.hosts}</td>
+                  <td>{session.statusName}</td>
+                  <td><Button color="success" onClick={() => handleJoin(session.sessionId)}>JOIN</Button></td>
+                </tr>)}
+              </tbody>
+            </Table>
+          </div>
+        </div>
+        }{
         hasJoined && 
-        <div>
+        <div className="row">
+          <div className="col-12">
           <h1 className="display-3 text-center p-3">{sessionName}</h1>
           <PostQuestionForm sessionId={sessionId} />
           <ListQuestions sessionId={sessionId} />
+          </div>
         </div>
       }
+      </div>
+      <ToastContainer />
     </div>
   );
 }

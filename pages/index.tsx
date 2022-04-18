@@ -1,8 +1,9 @@
 import Head from "next/head"
 import React from "react"
-import styles from "../styles/Home.module.css"
 import ListActiveAma from "../components/ListActiveAma"
 import Navbar from "../components/Navbar"
+import Image from 'next/image'
+import microphoneImage from '../public/images/ama-banner.jpg'
 
 export default function Home() {
     return (
@@ -14,10 +15,21 @@ export default function Home() {
             </Head>
 
             <Navbar />
-            <div className={styles.container}>
-            <main className={styles.main}>
-                <ListActiveAma/>
-            </main>
+            <div className="container">
+                <div className="row">
+                    <div className="col-12">
+                    <div>
+                        <Image
+                            alt="Now on Air image"
+                            src={microphoneImage} 
+                            layout="responsive"
+                        />
+                    </div>
+                    </div>
+                    <div className="col-12">
+                        <ListActiveAma/>
+                    </div>
+                </div>
             </div>
         </div>
     )

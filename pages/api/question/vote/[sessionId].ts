@@ -23,9 +23,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log("ext nullifier:", externalNullifier)
   console.log("proof: ", solidityProof)
 
-  // contract.voteQuestion(sessionIds[0], questionIds[0], bytes32Signal1, merkleProof.root, publicSignals.nullifierHash, publicSignals.externalNullifier, solidityProof)
-  const txn = await contractOwner.voteQuestion(sessionId, questionId, utils.formatBytes32String("vote"), root, nullifierHash, externalNullifier, solidityProof)
-  console.log(txn)
+  try {
+    await contractOwner.voteQuestion(sessionId, questionId, utils.formatBytes32String("vote"), root, nullifierHash, externalNullifier, solidityProof)
+
+    res.status(200).end()
+  } catch (error: any) {
+    const { message } = JSON.parse(error.body).error
+    const reason = message.substring(message.indexOf("'") + 1, message.lastIndexOf("'"))
+    res.status(500).send(reason || "Unknown error!")
+  }
+
   // listen for onchain event
   // if onchain updated successfully, update question status (is_posted=1) on offchain db
   contract.on("QuestionVoted", async (sId, qId, numVotes) => {
@@ -36,9 +43,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       values: [numVotes.toNumber(), qId.toNumber()]
     });
     console.log("QuestionVoted / update DB: ", result)
-    if (result)
-      res.status(200).end()
-    else res.status(500).send("Unable to vote question")
   })
-
 }

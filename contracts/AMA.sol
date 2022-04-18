@@ -22,23 +22,27 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 indexed sessionId,
         uint256 identityCommitment
     );
-    event AmaSessionStatusChanged(uint256 sessionId);
+    event AmaSessionStatusChanged(uint256 sessionId, uint256 statusId);
 
     // NotStarted: Allows host to pre-create AMA session but keep it as inactive state. Audience may join but cannot post questions yet
     // Active: Audience may post questions
     // Paused: Host may pause a session temporarily if the number of questions is overwhelming or if the host wants to answer the current set of questions first
     // Ended: AMA session has ended. This is the final state. No more questions.
-    enum SessionState {
-        NotStarted,
-        Active,
-        Paused,
-        Ended
-    }
+    // enum SessionState {
+    //     NotStarted,
+    //     Active,
+    //     Paused,
+    //     Ended
+    // }
+    uint256 constant NOT_STARTED = 1;
+    uint256 constant PAUSED = 2;
+    uint256 constant ACTIVE = 3;
+    uint256 constant ENDED = 4;
 
     struct AmaSession {
         uint256 sessionId;
         address owner;
-        SessionState state;
+        uint256 state;
     }
 
     struct Question {
@@ -62,36 +66,36 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     */
     modifier amaNotStarted(uint256 sessionId) {
         require(
-            amaSessions[sessionId].state == SessionState.NotStarted,
+            amaSessions[sessionId].state == NOT_STARTED,
             "AMA session's state should be Not Started"
         );
         _;
     }
     modifier amaActive(uint256 sessionId) {
         require(
-            amaSessions[sessionId].state == SessionState.Active,
+            amaSessions[sessionId].state == ACTIVE,
             "AMA session's state should be Active"
         );
         _;
     }
     modifier amaPaused(uint256 sessionId) {
         require(
-            amaSessions[sessionId].state == SessionState.Paused,
+            amaSessions[sessionId].state == PAUSED,
             "AMA session's state should be Paused"
         );
         _;
     }
     modifier amaEnded(uint256 sessionId) {
         require(
-            amaSessions[sessionId].state == SessionState.Ended,
+            amaSessions[sessionId].state == ENDED,
             "AMA session's state should be Ended"
         );
         _;
     }
     modifier canJoinAma(uint256 sessionId) {
         require(
-            amaSessions[sessionId].state == SessionState.Paused ||
-                amaSessions[sessionId].state == SessionState.Active,
+            amaSessions[sessionId].state == PAUSED ||
+                amaSessions[sessionId].state == ACTIVE,
             "AMA session's state should be Paused or Active"
         );
         _;
@@ -117,37 +121,41 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // Session state changes
     function startAmaSession(uint256 sessionId)
         external
+        amaExists(sessionId)
         onlyAmaSessionOwner(sessionId)
         amaNotStarted(sessionId)
     {
-        amaSessions[sessionId].state = SessionState.Active;
-        emit AmaSessionStatusChanged(sessionId);
+        amaSessions[sessionId].state = ACTIVE;
+        emit AmaSessionStatusChanged(sessionId, ACTIVE);
     }
 
     function resumeAmaSession(uint256 sessionId)
         external
+        amaExists(sessionId)
         onlyAmaSessionOwner(sessionId)
         amaPaused(sessionId)
     {
-        amaSessions[sessionId].state = SessionState.Active;
-        emit AmaSessionStatusChanged(sessionId);
+        amaSessions[sessionId].state = ACTIVE;
+        emit AmaSessionStatusChanged(sessionId, ACTIVE);
     }
 
     function pauseAmaSession(uint256 sessionId)
         external
+        amaExists(sessionId)
         onlyAmaSessionOwner(sessionId)
         amaActive(sessionId)
     {
-        amaSessions[sessionId].state = SessionState.Paused;
-        emit AmaSessionStatusChanged(sessionId);
+        amaSessions[sessionId].state = PAUSED;
+        emit AmaSessionStatusChanged(sessionId, PAUSED);
     }
 
     function endAmaSession(uint256 sessionId)
         external
+        amaExists(sessionId)
         onlyAmaSessionOwner(sessionId)
     {
-        amaSessions[sessionId].state = SessionState.Ended;
-        emit AmaSessionStatusChanged(sessionId);
+        amaSessions[sessionId].state = ENDED;
+        emit AmaSessionStatusChanged(sessionId, ENDED);
     }
 
     // Session activities
@@ -157,7 +165,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         amaSessions[sessionId] = AmaSession({
             sessionId: sessionId,
             owner: msg.sender,
-            state: SessionState.NotStarted
+            state: NOT_STARTED
         });
 
         emit AmaSessionCreated(sessionId);
@@ -165,6 +173,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
 
     function joinAmaSession(uint256 sessionId, uint256 identityCommitment)
         external
+        amaExists(sessionId)
         canJoinAma(sessionId)
     {
         _addMember(sessionId, identityCommitment);
@@ -188,21 +197,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     {
         return amaSessionIdentityCommitments[sessionId];
     }
-
-    // function leaveAmaSession(
-    //     uint256 sessionId,
-    //     uint256 identityCommitment,
-    //     uint256[] calldata proofSiblings,
-    //     uint8[] calldata proofPathIndices
-    // ) external {
-    //     _removeMember(
-    //         sessionId,
-    //         identityCommitment,
-    //         proofSiblings,
-    //         proofPathIndices
-    //     );
-    //     emit UserLeftAmaSession(sessionId, identityCommitment);
-    // }
 
     function postQuestion(
         uint256 sessionId,
