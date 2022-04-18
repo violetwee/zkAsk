@@ -15,17 +15,15 @@ export default function Home() {
             </Head>
 
             <Navbar />
+            <Image
+                alt="Now on Air image"
+                src={microphoneImage} 
+                layout="responsive"
+                priority
+            />
             <div className="container">
                 <div className="row">
-                    <div className="col-12">
-                    <div>
-                        <Image
-                            alt="Now on Air image"
-                            src={microphoneImage} 
-                            layout="responsive"
-                        />
-                    </div>
-                    </div>
+                    
                     <div className="col-12">
                         <ListActiveAma/>
                     </div>
