@@ -1,6 +1,5 @@
 import Head from "next/head"
 import React from "react"
-import styles from "../../styles/Host.module.css"
 import CreateAmaForm from "../../components/CreateAmaForm"
 import ListOwnerAma from "../../components/ListOwnerAma"
 import Navbar from "../../components/Navbar"
@@ -15,15 +14,6 @@ import {
 
 export default function Host() {
     const [menuSelection, setMenuSelection] = React.useState(1)
-    // const menu1 = [{
-    //     id: 1,
-    //     name: "Create an AMA Session"
-    // }, {
-    //     id: 2, 
-    //     name: 'My AMA Sessions'
-    // }];
-    // setMenuSelections(JSON.parse(menu1))
-
     const showComponent = (menuId: number) => {
         setMenuSelection(menuId)
     }

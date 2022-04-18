@@ -86,10 +86,10 @@ export default function ListOwnerAma() {
 
   return (
     <div>
-      <div className="container p-5">{!hasJoined &&
+      <div className="container pt-6 pb-5">{!hasJoined &&
         <div className="row">
          <div className="col-10">
-            <h5 className="display-3">AMA Sessions : Now on Air</h5>
+            <h5 className="display-4">AMA Sessions : Now on Air</h5>
           </div>
           <div className="col-2">
             <Button type="button" className="btn btn-primary float-right" onClick={loadAmaSessions}><ArrowClockwise size="24" /></Button>

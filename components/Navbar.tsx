@@ -2,44 +2,41 @@
 import {
   Navbar,
   NavbarBrand,
-  NavLink,
   NavbarToggler,
   NavItem,
-  Collapse,
-  Nav
+  Nav,
+  NavLink,
+  Button
 } from "reactstrap";
+import Image from 'next/image'
+import logo from '../public/images/zkask.png'
 
 export default function NavBar() {
 
   return (
     <div>
       <Navbar
-        color="light"
         expand="md"
-        light
+        style={{backgroundColor:"#2A153A"}}
       >
-        <NavbarBrand href="/">
-          zkAsk - Be Heard. Be Anonymous.
+        <NavbarBrand href="/" className="pl-3">
+          <Image 
+            alt="zkAsk logo"
+            key={Date.now()}
+            src={logo} 
+            />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck(){}} />
-        <Collapse navbar>
           <Nav
             className="me-auto"
             navbar
           >
-            <NavItem>
+            <NavItem className="float-right">
               <NavLink href="/session/host">
-                I&apos;m a Host
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink href="/">
-                I&apos;m a Participant
+                <Button color="primary">I&apos;m a host</Button>
               </NavLink>
             </NavItem>
           </Nav>
-          
-        </Collapse>
       </Navbar>
     </div>
   );
