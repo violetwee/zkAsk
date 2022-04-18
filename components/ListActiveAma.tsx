@@ -47,8 +47,7 @@ export default function ListOwnerAma() {
   const handleJoin = async (sessionId : number) => {
     console.log("handle join for = ", sessionId)
     
-    // setLogs("Creating your Semaphore identity...")
-
+    toast("Creating your Semaphore identity...")
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
 
@@ -77,7 +76,6 @@ export default function ListOwnerAma() {
       console.log(errorMessage)
       toast.error(errorMessage);
     } else {
-        // setLogs("Your anonymous greeting is onchain :)")
         console.log("Joined AMA session successfully")
         setSessionId(sessionId)
         setHasJoined(true)
@@ -139,8 +137,8 @@ export default function ListOwnerAma() {
         <div className="row">
           <div className="col-12">
           <h1 className="display-3 text-center p-3">{sessionName}</h1>
-          <PostQuestionForm sessionId={sessionId} />
-          <ListQuestions sessionId={sessionId} />
+            <PostQuestionForm sessionId={sessionId} />
+            <ListQuestions sessionId={sessionId} />
           </div>
         </div>
       }

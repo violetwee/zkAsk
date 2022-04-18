@@ -17,13 +17,13 @@ export default function Home() {
             <Navbar />
             <Image
                 alt="Now on Air image"
+                key={Date.now()}
                 src={microphoneImage} 
                 layout="responsive"
                 priority
             />
             <div className="container">
                 <div className="row">
-                    
                     <div className="col-12">
                         <ListActiveAma/>
                     </div>

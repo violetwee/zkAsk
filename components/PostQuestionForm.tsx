@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
-import { generateMerkleProof, genExternalNullifier, Semaphore } from "@zk-kit/protocols"
+import { generateMerkleProof, genExternalNullifier, MerkleProof, Semaphore } from "@zk-kit/protocols"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -65,7 +65,13 @@ export default function PosQuestionForm({sessionId }) {
     })).json()
 
     // generate proofs
-    const merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
+    let merkleProof : MerkleProof
+    try {
+      merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
+    } catch(error: any) {
+      toast.error("Join the AMA session before posting a question")
+      return
+    }
     const nullifier = `${sessionId}_${questionId}`;
     const questionNullifier = Semaphore.genNullifierHash(genExternalNullifier(nullifier), identity.getNullifier())
 

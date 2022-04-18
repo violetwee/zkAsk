@@ -57,7 +57,13 @@ export default function ListQuestions({sessionId}) {
     })).json()
 
     // generate proofs
-    const merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
+    let merkleProof : MerkleProof
+    try {
+      merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
+    } catch(error: any) {
+      toast.error("Join the AMA session before voting on a question")
+      return
+    }
     const nullifier = `${sessionId}_${questionId}`;
     const questionNullifier = Semaphore.genNullifierHash(genExternalNullifier(nullifier), identity.getNullifier())
 
