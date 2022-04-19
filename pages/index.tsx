@@ -2,6 +2,7 @@ import Head from "next/head"
 import React from "react"
 import ListActiveAma from "../components/ListActiveAma"
 import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
 import Image from 'next/image'
 import microphoneImage from '../public/images/ama-banner.jpg'
 
@@ -29,6 +30,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

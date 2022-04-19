@@ -32,7 +32,7 @@ export default function NavBar() {
             navbar
           >
             <NavItem className="float-right">
-              <NavLink href="/session/host">
+              <NavLink href="/host">
                 <Button color="primary">I&apos;m a host</Button>
               </NavLink>
             </NavItem>

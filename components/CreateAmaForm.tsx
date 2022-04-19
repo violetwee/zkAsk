@@ -3,6 +3,7 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ReactSession } from 'react-client-session';
 
 import {
   FormGroup,
@@ -41,6 +42,8 @@ export default function CreateAmaForm() {
     await signer.signMessage("Sign this message to create your AMA session!")
 
     let owner = await signer.getAddress();
+    ReactSession.set("owner", owner)
+    
     const { name, desc, host, accessCode } = values;
 
     const data = JSON.stringify({

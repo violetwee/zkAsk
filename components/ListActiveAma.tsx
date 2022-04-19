@@ -3,7 +3,6 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import PostQuestionForm from "./PostQuestionForm"
-import ListQuestions from "./ListQuestions"
 import { getStatusName, getSessionName }  from "../lib/utils"
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
@@ -80,7 +79,6 @@ export default function ListOwnerAma() {
         setSessionId(sessionId)
         setHasJoined(true)
         setSessionName(getSessionName(sessionId, sessions))
-        toast("Joined AMA session")
     }
   }
 
@@ -138,7 +136,7 @@ export default function ListOwnerAma() {
           <div className="col-12">
           <h1 className="display-3 text-center p-3">{sessionName}</h1>
             <PostQuestionForm sessionId={sessionId} />
-            <ListQuestions sessionId={sessionId} />
+            
           </div>
         </div>
       }

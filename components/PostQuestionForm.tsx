@@ -3,6 +3,7 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { generateMerkleProof, genExternalNullifier, MerkleProof, Semaphore } from "@zk-kit/protocols"
+import ListQuestions from './ListQuestions'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,6 +22,7 @@ const initialValues = {
 
 export default function PosQuestionForm({sessionId }) {
   const [values, setValues] = useState(initialValues);
+  const [shouldReloadQuestions, setShouldReloadQuestions] = useState(false)
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -64,6 +66,8 @@ export default function PosQuestionForm({sessionId }) {
       method: 'GET'
     })).json()
 
+    console.log("identityCommitments = ", identityCommitments)
+
     // generate proofs
     let merkleProof : MerkleProof
     try {
@@ -102,6 +106,7 @@ export default function PosQuestionForm({sessionId }) {
         toast.error("Failed to post question")
     } else {
         console.log("Question posted onchain!")
+        setShouldReloadQuestions(true)
         toast("Question posted")
         setValues(initialValues)
     }
@@ -135,6 +140,7 @@ export default function PosQuestionForm({sessionId }) {
           </Col>
           </Row>
         </Form>
+        <ListQuestions sessionId={sessionId} shouldReloadQuestions={shouldReloadQuestions} />
         <ToastContainer />
     </div>
   );

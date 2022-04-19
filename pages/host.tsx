@@ -1,8 +1,8 @@
 import Head from "next/head"
 import React from "react"
-import CreateAmaForm from "../../components/CreateAmaForm"
-import ListOwnerAma from "../../components/ListOwnerAma"
-import Navbar from "../../components/Navbar"
+import CreateAmaForm from "../components/CreateAmaForm"
+import ListOwnerAma from "../components/ListOwnerAma"
+import Navbar from "../components/Navbar"
 import {
     Container,
     Row,

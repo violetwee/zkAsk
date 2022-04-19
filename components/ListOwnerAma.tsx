@@ -5,7 +5,7 @@ import  { getStatusName }  from "../lib/utils"
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { ReactSession } from 'react-client-session';
 import {
   Button,
   Table,
@@ -16,37 +16,30 @@ export default function ListOwnerAma() {
   const [sessionData, setSessionData] = React.useState(null)
   let ownerAddress : string;
 
-  useEffect(() => {
-    loadOwnerAmaSessions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const loadOwnerAmaSessions = async () => {
-    let signer: providers.JsonRpcSigner;
-    const provider = (await detectEthereumProvider()) as any
-    await provider.request({ method: "eth_requestAccounts" })
+    ownerAddress = ReactSession.get("owner");
 
-    const ethersProvider = new providers.Web3Provider(provider)
-    signer = ethersProvider.getSigner()
-    await signer.signMessage("Sign this message to access Host features!")
+    if (!ownerAddress) {
+      let signer: providers.JsonRpcSigner;
+      const provider = (await detectEthereumProvider()) as any
+      await provider.request({ method: "eth_requestAccounts" })
 
-    ownerAddress = await signer.getAddress()
-    
+      const ethersProvider = new providers.Web3Provider(provider)
+      signer = ethersProvider.getSigner()
+      await signer.signMessage("Sign this message to access Host features!")
 
-    console.log("owner is ", ownerAddress)
-    const endpoint = `/api/sessions/${ownerAddress}`;
-
-    const options = {
-        method: 'GET'
-      }
+      ownerAddress = await signer.getAddress()
+      ReactSession.set("owner", ownerAddress);
+    }
   
-      const res = await fetch(endpoint, options)
-      let result = await res.json()
+    const res = await fetch(`/api/sessions/${ownerAddress}`, {
+      method: 'GET'
+    })
+    let result = await res.json()
 
     if (res.status === 500) {
-        // const errorMessage = await res.text()
-        // console.log(errorMessage)
-        console.log(res)
+      toast(res)
+      console.log(res)
     } else {
         console.log("AMA sessions fetched")
         const MAX_DESC_LENGTH = 100;
@@ -83,7 +76,6 @@ export default function ListOwnerAma() {
 
   const handleStatus = async ( sessionId: number, command: string) => {
     console.log("handle status change: for ", sessionId, command, ownerAddress)
-    const endpoint = `/api/session/status/${sessionId}`;
 
     const options = {
         method: 'PUT',
@@ -93,7 +85,7 @@ export default function ListOwnerAma() {
         body: JSON.stringify({ command: command })
       }
   
-      const res = await fetch(endpoint, options)
+      const res = await fetch(`/api/session/status/${sessionId}`, options)
       
     if (res.status === 500) {
         console.log("Error:", res)
@@ -109,6 +101,11 @@ export default function ListOwnerAma() {
         })
     }
   }
+
+  useEffect(() => {
+    loadOwnerAmaSessions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -154,6 +151,7 @@ export default function ListOwnerAma() {
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
+                  <td>{session.accessCode}</td>
                   <td><Button color="info" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
                 </tr>)}
               </tbody>

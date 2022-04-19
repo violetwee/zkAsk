@@ -12,12 +12,8 @@ import {
   Table
 } from "reactstrap";
 
-export default function ListQuestions({sessionId}) {
-  const [questions, setQuestions] = React.useState(null)
-  useEffect(() => {
-    loadQuestions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+export default function ListQuestions({sessionId, shouldReloadQuestions}) {
+  const [questions, setQuestions] = React.useState(null)  
 
   const loadQuestions = async () => {
     console.log("loadQuestions for sessionId: ", sessionId)
@@ -101,10 +97,15 @@ export default function ListQuestions({sessionId}) {
     }
   }
 
+  useEffect(() => {
+      loadQuestions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldReloadQuestions]);
+
   return (
     <div>
       <div className="container">
-        <div className="row align-items-start pt-3 pb-3">
+        <div className="row align-items-start pt-5 pb-3">
           <div className="col">
           <h5>Questions {questions ? "(" + questions.length + ")" : ""}</h5>
           </div>

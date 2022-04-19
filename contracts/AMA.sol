@@ -28,12 +28,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     // Active: Audience may post questions
     // Paused: Host may pause a session temporarily if the number of questions is overwhelming or if the host wants to answer the current set of questions first
     // Ended: AMA session has ended. This is the final state. No more questions.
-    // enum SessionState {
-    //     NotStarted,
-    //     Active,
-    //     Paused,
-    //     Ended
-    // }
     uint256 constant NOT_STARTED = 1;
     uint256 constant PAUSED = 2;
     uint256 constant ACTIVE = 3;
