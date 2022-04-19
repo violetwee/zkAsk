@@ -151,7 +151,7 @@ export default function ListOwnerAma() {
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
-                  <td><Button color="info" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
+                  <td><Button color="primary" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
                 </tr>)}
               </tbody>
             </Table>

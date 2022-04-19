@@ -35,6 +35,10 @@ export default function PosQuestionForm({sessionId }) {
   const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log("handle submit:", sessionId)
+    setShouldReloadQuestions(false)
+
+    toast("Posting your question...")
+    
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
 

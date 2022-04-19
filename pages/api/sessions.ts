@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // get sessions from database
     const result = await excuteQuery({
-      query: 'SELECT sessionId, name, hosts, description, created_at, status FROM ama_sessions WHERE status IN (?, ?) ORDER BY created_at DESC',
+      query: 'SELECT sessionId, name, hosts, description, created_at, status, (access_code_hash IS NOT NULL) as req_access_code FROM ama_sessions WHERE status IN (?, ?) ORDER BY created_at DESC',
       values: [CONSTANTS.PAUSED, CONSTANTS.ACTIVE]
     });
 

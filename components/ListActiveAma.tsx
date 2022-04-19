@@ -4,25 +4,35 @@ import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import PostQuestionForm from "./PostQuestionForm"
 import { getStatusName, getSessionName }  from "../lib/utils"
-import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import {
   Button,
+  FormGroup,
+  Input,
+  Label,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Table
 } from "reactstrap";
 
 export default function ListOwnerAma() {
   const [sessions, setSessions] = React.useState(null)
   const [hasJoined, setHasJoined] = React.useState(false)
+  const [reqAccessCode, setReqAccessCode] = React.useState(false)
   const [sessionId, setSessionId] = React.useState(0)
   const [sessionName, setSessionName] = React.useState("")
+  const [accessCode, setAccessCode] = React.useState("");
 
-  useEffect(() => {
-    loadAmaSessions();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    console.log(value)
+    setAccessCode(value)
+  };
 
   const loadAmaSessions = async () => {
       const response = await fetch(`/api/sessions`, {
@@ -43,9 +53,9 @@ export default function ListOwnerAma() {
     }
   }
 
-  const handleJoin = async (sessionId : number) => {
-    console.log("handle join for = ", sessionId)
-    
+  const handleJoin = async (sessionId : number, accessCode: string) => {
+    console.log("handle join for = ", sessionId, accessCode)
+
     toast("Creating your Semaphore identity...")
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
@@ -58,7 +68,8 @@ export default function ListOwnerAma() {
     const identityCommitment = identity.genIdentityCommitment()
 
     const data = JSON.stringify({
-      identityCommitment: identityCommitment.toString()
+      identityCommitment: identityCommitment.toString(),
+      accessCode: accessCode || ""
     })
     const options = {
       method: "POST",
@@ -78,9 +89,26 @@ export default function ListOwnerAma() {
         console.log("Joined AMA session successfully")
         setSessionId(sessionId)
         setHasJoined(true)
+        setReqAccessCode(false);
         setSessionName(getSessionName(sessionId, sessions))
     }
   }
+
+  const requestAccessCode = (sessionId: number) => {
+    console.log("request access code from user: ",sessionId)
+    setSessionId(sessionId)
+    setSessionName(getSessionName(sessionId, sessions))
+    setReqAccessCode(true);
+  }
+
+  const closeModal = () => {
+    setReqAccessCode(false)
+  }
+
+  useEffect(() => {
+    loadAmaSessions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -117,17 +145,18 @@ export default function ListOwnerAma() {
                 </tr>
               </thead>
               <tbody>
-                {sessions && sessions.map((session: { sessionId: React.ChangeEvent<HTMLInputElement> | React.Key | null | undefined; name: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; description: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; hosts: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; statusName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => 
+                {sessions && sessions.map((session, index: number) => 
                 <tr key={session.sessionId}>
                   <td>{index+1}</td>
-                  <td>{session.name}</td>
+                  <td>{session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
-                  <td><Button color="success" onClick={() => handleJoin(session.sessionId)}>JOIN</Button></td>
+                  <td><Button color="success" onClick={() => session.req_access_code ? requestAccessCode(session.sessionId) : handleJoin(session.sessionId, "")}>JOIN</Button></td>
                 </tr>)}
               </tbody>
             </Table>
+            
           </div>
         </div>
         }{
@@ -136,11 +165,44 @@ export default function ListOwnerAma() {
           <div className="col-12">
           <h1 className="display-3 text-center p-3">{sessionName}</h1>
             <PostQuestionForm sessionId={sessionId} />
-            
           </div>
         </div>
       }
       </div>
+
+      <Modal centered
+        isOpen={reqAccessCode}
+        toggle={function noRefCheck(){}}
+      >
+        <ModalHeader toggle={function noRefCheck(){}} close={<button className="close" onClick={() => closeModal()}>×</button>}>
+          {sessionName}
+        </ModalHeader>
+        <ModalBody>
+        <div className="pb-3">This AMA session requires an access code to join. If you do not have an access code, please contact the host.</div>
+          <FormGroup>
+            
+            <Input
+                id="accessCode"
+                name="accessCode"
+                placeholder="Enter access code"
+                type="text" value={accessCode}
+                onChange={handleInputChange} 
+              />
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="primary"
+            onClick={() => handleJoin(sessionId, accessCode)}
+          >
+            JOIN NOW
+          </Button>
+          {' '}
+          <Button onClick={() => closeModal()}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
       <ToastContainer />
     </div>
   );
