@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import  { getStatusName }  from "../lib/utils"
-import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
@@ -147,11 +147,10 @@ export default function ListOwnerAma() {
                 {sessions && sessions.map((session, index) => 
                 <tr key={session.sessionId}>
                   <td>{index+1}</td>
-                  <td>{session.name}</td>
+                  <td>{session.name} {session.access_code_hash ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
-                  <td>{session.accessCode}</td>
                   <td><Button color="info" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
                 </tr>)}
               </tbody>
