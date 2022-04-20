@@ -6,29 +6,33 @@ import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
+import { AmaSession } from "interfaces/AmaSession";
 import {
   Button,
   Table,
 } from "reactstrap";
 
 export default function ListOwnerAma() {
-  const [sessions, setSessions] = React.useState(null)
-  const [sessionData, setSessionData] = React.useState(null)
+  const [sessions, setSessions] = React.useState([])
+  const [sessionData, setSessionData] = React.useState<AmaSession>()
   let ownerAddress : string;
 
   const loadOwnerAmaSessions = async () => {
+    
     ownerAddress = ReactSession.get("owner");
 
     if (!ownerAddress) {
       let signer: providers.JsonRpcSigner;
       const provider = (await detectEthereumProvider()) as any
-      await provider.request({ method: "eth_requestAccounts" })
+      let accounts = await provider.request({ method: "eth_requestAccounts" })
+      ownerAddress = accounts[0];
 
       const ethersProvider = new providers.Web3Provider(provider)
-      signer = ethersProvider.getSigner()
+      signer = ethersProvider.getSigner(ownerAddress)
       await signer.signMessage("Sign this message to access Host features!")
 
-      ownerAddress = await signer.getAddress()
+      
+      // ownerAddress = await signer.getAddress()
       ReactSession.set("owner", ownerAddress);
     }
   
@@ -144,14 +148,14 @@ export default function ListOwnerAma() {
                 </tr>
               </thead>
               <tbody>
-                {sessions && sessions.map((session, index) => 
-                <tr key={session.sessionId}>
+                {sessions && sessions.map((session : AmaSession, index: number) => 
+                <tr key={session.session_id}>
                   <td>{index+1}</td>
                   <td>{session.name} {session.access_code_hash ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
-                  <td><Button color="primary" onClick={() => handleView(session.sessionId)}>VIEW</Button></td>
+                  <td><Button color="primary" onClick={() => handleView(session.session_id)}>VIEW</Button></td>
                 </tr>)}
               </tbody>
             </Table>
@@ -170,9 +174,9 @@ export default function ListOwnerAma() {
                             <h5 className="card-title">{sessionData.name}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">Hosted by: {sessionData.hosts}</h6>
                             <p className="card-text">{sessionData.description}</p>
-                            {sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.sessionId, 'start')}>Start</Button> : sessionData.status === 2 ? 
-                              <div><Button onClick={() => handleStatus(sessionData.sessionId, 'resume')} color="info">Resume</Button> <Button onClick={() => handleStatus(sessionData.sessionId, 'end')} color="danger">End</Button></div>: sessionData.status === 3 ? 
-                              <div><Button onClick={() => handleStatus(sessionData.sessionId, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(sessionData.sessionId, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
+                            {sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.session_id, 'start')}>Start</Button> : sessionData.status === 2 ? 
+                              <div><Button onClick={() => handleStatus(sessionData.session_id, 'resume')} color="info">Resume</Button> <Button onClick={() => handleStatus(sessionData.session_id, 'end')} color="danger">End</Button></div>: sessionData.status === 3 ? 
+                              <div><Button onClick={() => handleStatus(sessionData.session_id, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(sessionData.session_id, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
                           </div>
                         </div>
 

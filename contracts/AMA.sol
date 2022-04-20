@@ -232,7 +232,12 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external amaExists(sessionId) amaActive(sessionId) {
+    )
+        external
+        amaExists(sessionId)
+        amaActive(sessionId)
+        returns (uint256, uint256)
+    {
         require(
             _isValidProof(
                 signal,
@@ -253,5 +258,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         _saveNullifierHash(nullifierHash);
 
         emit QuestionVoted(sessionId, questionId, amaSessionQuestion[id].votes);
+        return (questionId, amaSessionQuestion[id].votes);
     }
 }

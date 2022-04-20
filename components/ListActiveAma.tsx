@@ -7,12 +7,12 @@ import { getStatusName, getSessionName }  from "../lib/utils"
 import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AmaSession } from '../interfaces/AmaSession'
 
 import {
   Button,
   FormGroup,
   Input,
-  Label,
   Modal,
   ModalHeader,
   ModalBody,
@@ -21,7 +21,7 @@ import {
 } from "reactstrap";
 
 export default function ListOwnerAma() {
-  const [sessions, setSessions] = React.useState(null)
+  const [sessions, setSessions] = React.useState([])
   const [hasJoined, setHasJoined] = React.useState(false)
   const [reqAccessCode, setReqAccessCode] = React.useState(false)
   const [sessionId, setSessionId] = React.useState(0)
@@ -30,7 +30,6 @@ export default function ListOwnerAma() {
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
-    console.log(value)
     setAccessCode(value)
   };
 
@@ -145,14 +144,14 @@ export default function ListOwnerAma() {
                 </tr>
               </thead>
               <tbody>
-                {sessions && sessions.map((session, index: number) => 
-                <tr key={session.sessionId}>
+                {sessions && sessions.map((session: AmaSession, index: number) => 
+                <tr key={session.session_id}>
                   <td>{index+1}</td>
                   <td>{session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
-                  <td><Button color="success" onClick={() => session.req_access_code ? requestAccessCode(session.sessionId) : handleJoin(session.sessionId, "")}>JOIN</Button></td>
+                  <td><Button color="success" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")}>JOIN</Button></td>
                 </tr>)}
               </tbody>
             </Table>

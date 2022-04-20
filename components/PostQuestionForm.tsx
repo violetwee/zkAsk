@@ -20,7 +20,11 @@ const initialValues = {
   content: "Is zkSnarks or zkStarks better?"
 };
 
-export default function PosQuestionForm({sessionId }) {
+type Props = {
+  sessionId: number
+}
+
+export default function PostQuestionForm({ sessionId }: Props) {
   const [values, setValues] = useState(initialValues);
   const [shouldReloadQuestions, setShouldReloadQuestions] = useState(false)
 
@@ -125,8 +129,8 @@ export default function PosQuestionForm({sessionId }) {
                 <Input
                   id="content"
                   name="content"
-                  type="text" value={values.content}
-                  maxLength="500"
+                  type="text" value={values.content} 
+                  maxLength={500}
                   onChange={handleInputChange} required 
                 />
               </FormGroup>

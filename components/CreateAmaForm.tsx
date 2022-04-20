@@ -42,6 +42,7 @@ export default function CreateAmaForm() {
     await signer.signMessage("Sign this message to create your AMA session!")
 
     let owner = await signer.getAddress();
+    console.log("owner is ", owner)
     ReactSession.set("owner", owner)
     
     const { name, desc, host, accessCode } = values;
@@ -68,8 +69,9 @@ export default function CreateAmaForm() {
 
     if (res.status === 500) {
         console.log("res", res)
-        const errorMessage = await res.text()
-        console.log(errorMessage)
+        toast.error("Failed to create AMA session")
+        const err = await res.text()
+        console.log(err)
     } else {
         console.log("AMA session created and saved to database")
         setValues(initialValues)

@@ -2,18 +2,23 @@ import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
-import { generateMerkleProof, genExternalNullifier, Semaphore } from "@zk-kit/protocols"
+import { generateMerkleProof, genExternalNullifier, MerkleProof, Semaphore } from "@zk-kit/protocols"
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { AmaQuestion } from '../interfaces/AmaQuestion'
 import {
   Button,
   Table
 } from "reactstrap";
 
-export default function ListQuestions({sessionId, shouldReloadQuestions}) {
-  const [questions, setQuestions] = React.useState(null)  
+type Props = {
+  sessionId: number
+  shouldReloadQuestions: boolean
+}
+
+export default function ListQuestions({ sessionId, shouldReloadQuestions }: Props) {
+  const [questions, setQuestions] = React.useState([])  
 
   const loadQuestions = async () => {
     console.log("loadQuestions for sessionId: ", sessionId)
@@ -91,9 +96,8 @@ export default function ListQuestions({sessionId, shouldReloadQuestions}) {
       toast.error(errorMessage);
     } else {
         console.log("Question voted onchain!")
-        toast("Vote submitted onchain", {
-          onClose: () => loadQuestions()
-        })
+        loadQuestions()
+        toast("Vote submitted onchain")
     }
   }
 
@@ -118,11 +122,11 @@ export default function ListQuestions({sessionId, shouldReloadQuestions}) {
       <div>
         <Table> 
           <tbody>
-            {questions && questions.map((q, index: number) => 
-            <tr key={q.questionId}>
+            {questions && questions.map((q: AmaQuestion, index: number) => 
+            <tr key={q.question_id}>
               <td>{index+1}</td>
               <td>{q.content} {q.votes > 0 ? "(" + q.votes + ")" : ""}</td>
-              <td align="right"><Button color="primary" onClick={() => handleVote(sessionId, q.questionId)}>VOTE</Button></td>
+              <td align="right"><Button color="primary" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button></td>
             </tr>)}
           </tbody>
         </Table>
