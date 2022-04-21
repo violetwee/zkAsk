@@ -30,6 +30,12 @@ Audience/Participant:
 
 `yarn test`
 
+# Setup database (mysql)
+
+Create two tables: ama_sessions and ama_questions. Run the create scripts in /scripts folder.
+
+Rename .env.example to .env and input the database connection properties.
+
 # Test with Frontend UI
 
 - `yarn install` to install all dependencies
