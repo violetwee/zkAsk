@@ -18,11 +18,11 @@ const config: HardhatUserConfig = {
     },
     networks: {
         testnet: {
-            url: `${process.env.HMY_TESTNET_WSS_URL}`,
+            url: `${process.env.HMY_TESTNET_RPC_URL}`,
             accounts: [`0x${process.env.HMY_PRIVATE_KEY}`]
         },
         mainnet: {
-            url: `${process.env.HMY_MAINNET_WSS_URL}`,
+            url: `${process.env.HMY_MAINNET_RPC_URL}`,
             accounts: [`0x${process.env.HMY_PRIVATE_KEY}`]
         }
     },
