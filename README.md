@@ -44,6 +44,8 @@ Rename .env.example to .env and input the database connection properties.
 - `yarn dev` to start a local node. Import a few of the test accounts into Metamask for testing purposes.
 - `yarn deploy --network localhost` to deploy the smart contracts to the local node.
 
+<img src="https://github.com/violetwee/zkAsk/blob/main/screenshots/frontend.png" width="800px" height="auto"/>
+
 Copy the AMA contract address to lib/config.json
 
 Then, browse to http://localhost:3000 to access the frontend UI.
