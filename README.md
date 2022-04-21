@@ -4,7 +4,7 @@ zkAsk allows a host to create an AMA session where the audience can join and ask
 
 # Features
 
-Host:
+## Host
 
 - create AMA sessions which may be public or secured with an access code (ie. audience would need an access code to join the AMA session - useful for study groups where only students can join, or corporate groups where only employees can join)
 - update status of the AMA session
@@ -14,7 +14,7 @@ Host:
   - end: Session has ended
 - list created AMA sessions
 
-Audience/Participant:
+## Audience/Participant
 
 - list AMA sessions that are paused/active (ie. ready for audiences to join)
 - join a public session or enter access code to join a secured AMA session
@@ -29,6 +29,8 @@ Audience/Participant:
 # Testing
 
 `yarn test`
+
+<img src="https://github.com/violetwee/zkAsk/blob/main/screenshots/tests.png" width="800px" height="auto"/>
 
 # Setup database (mysql)
 
