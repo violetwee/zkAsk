@@ -16,9 +16,9 @@ import {
 } from "reactstrap";
 
 const initialValues = {
-  name: "My AMA",
-  desc: "AMA stuffs",
-  host: "Me",
+  name: "",
+  desc: "",
+  host: "",
   accessCode: ""
 };
 
@@ -33,8 +33,10 @@ export default function CreateAmaForm() {
     });
   };
 
-  const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
+  // create AMA session with form inputs
+  const handleCreate = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
     const ethersProvider = new providers.Web3Provider(provider)
@@ -42,9 +44,9 @@ export default function CreateAmaForm() {
     await signer.signMessage("Sign this message to create your AMA session!")
 
     let owner = await signer.getAddress();
-    console.log("owner is ", owner)
     ReactSession.set("owner", owner)
     
+    // get session form values
     const { name, desc, host, accessCode } = values;
 
     const data = JSON.stringify({
@@ -54,9 +56,6 @@ export default function CreateAmaForm() {
         accessCode: accessCode,
         owner: owner
     })
-    console.log(data)
-    const endpoint = '/api/session/create';
-
     const options = {
         method: 'POST',
         headers: {
@@ -65,16 +64,15 @@ export default function CreateAmaForm() {
         body: data,
       }
   
-    const res = await fetch(endpoint, options)
+    const res = await fetch('/api/session/create', options)
 
     if (res.status === 500) {
         console.log("res", res)
-        toast.error("Failed to create AMA session")
-        const err = await res.text()
-        console.log(err)
+        const errorMessage = await res.text()
+        toast.error(errorMessage);
     } else {
         console.log("AMA session created and saved to database")
-        setValues(initialValues)
+        setValues(initialValues) // reset form values
         toast("AMA session created")
     }
   }
@@ -83,10 +81,10 @@ export default function CreateAmaForm() {
     <div>
       <div className="container">
         <div className="col">
-          <h1 className="display-3 pb-5">Create an AMA Session</h1>
+          <h1 className="display-3 pb-3">Create an AMA Session</h1>
         </div>
         <div className="col">
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleCreate}>
             <Row>
               <Col md="12">
                 <FormGroup floating>

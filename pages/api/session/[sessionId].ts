@@ -13,5 +13,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (result && result.length > 0)
     return res.status(200).send(result[0])
 
-  return res.status(500).send(new Error("Unable to fetch session data"))
+  return res.status(500).send("Unable to fetch session data")
 }

@@ -3,7 +3,6 @@ import excuteQuery from 'lib/db'
 import { getContract } from 'lib/contract'
 import { utils } from "ethers"
 
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { questionId, root, nullifierHash, externalNullifier, solidityProof } = JSON.parse(req.body);
   const {
@@ -25,7 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).end()
   }
   catch (error: any) {
-    console.log(error.reason)
     res.status(500).send(error.reason || "Failed to post question")
   }
 }

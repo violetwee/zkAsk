@@ -12,7 +12,6 @@ import Image from 'next/image'
 import logo from '../public/images/zkask.png'
 
 export default function NavBar() {
-
   return (
     <div>
       <Navbar

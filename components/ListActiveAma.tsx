@@ -2,12 +2,12 @@ import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
-import PostQuestionForm from "./PostQuestionForm"
-import { getStatusName, getSessionName }  from "../lib/utils"
+import { AmaSession } from 'interfaces/AmaSession'
+import { getStatusName, getSessionName }  from "lib/utils"
 import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AmaSession } from '../interfaces/AmaSession'
+import PostQuestionForm from "./PostQuestionForm"
 
 import {
   Button,
@@ -20,7 +20,7 @@ import {
   Table
 } from "reactstrap";
 
-export default function ListOwnerAma() {
+export default function ListActiveAma() {
   const [sessions, setSessions] = React.useState([])
   const [hasJoined, setHasJoined] = React.useState(false)
   const [reqAccessCode, setReqAccessCode] = React.useState(false)
@@ -28,11 +28,14 @@ export default function ListOwnerAma() {
   const [sessionName, setSessionName] = React.useState("")
   const [accessCode, setAccessCode] = React.useState("");
 
+  // access code input
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     setAccessCode(value)
   };
 
+  // fetch all active/paused AMA Sessions
+  // participants can only join AMA sessions that are active/paused
   const loadAmaSessions = async () => {
       const response = await fetch(`/api/sessions`, {
         method: 'GET'
@@ -40,22 +43,23 @@ export default function ListOwnerAma() {
       let result = await response.json()
 
     if (response.status === 500) {
-        console.log("Error: ", response)
+        console.log("loadAmaSessions err: ", response)
     } else {
-        console.log("AMA sessions fetched")
-        const MAX_DESC_LENGTH = 100;
-        result.map((r: { statusName: string; status: any; description: string }) => {
-          r.statusName = getStatusName(r.status) // show status name instead of id
-          r.description = r.description.length > MAX_DESC_LENGTH ? r.description.substring(0, MAX_DESC_LENGTH) + '...' : r.description // show snippet of description
-        })
-        setSessions(result)
+      // parse data for display
+      const MAX_DESC_LENGTH = 100;
+      result.map((r: { statusName: string; status: any; description: string }) => {
+        r.statusName = getStatusName(r.status) // show status name instead of id
+        r.description = r.description.length > MAX_DESC_LENGTH ? r.description.substring(0, MAX_DESC_LENGTH) + '...' : r.description // show snippet of description
+      })
+      setSessions(result)
     }
   }
 
+  // add participant to AMA session (an AMA session is a Semaphore Group)
   const handleJoin = async (sessionId : number, accessCode: string) => {
     console.log("handle join for = ", sessionId, accessCode)
 
-    toast("Creating your Semaphore identity...")
+    toast("Create your Semaphore identity...")
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
 
@@ -82,28 +86,28 @@ export default function ListOwnerAma() {
     if (res.status === 500) {
       console.log(res)
       const errorMessage = await res.text()
-      console.log(errorMessage)
       toast.error(errorMessage);
     } else {
-        console.log("Joined AMA session successfully")
-        setSessionId(sessionId)
-        setHasJoined(true)
-        setReqAccessCode(false);
-        setSessionName(getSessionName(sessionId, sessions))
+      setSessionId(sessionId)
+      setHasJoined(true)
+      setReqAccessCode(false);
+      setSessionName(getSessionName(sessionId, sessions))
     }
   }
 
+  // prompt participant for access code to join the AMA session
   const requestAccessCode = (sessionId: number) => {
-    console.log("request access code from user: ",sessionId)
     setSessionId(sessionId)
     setSessionName(getSessionName(sessionId, sessions))
-    setReqAccessCode(true);
+    setReqAccessCode(true); // show request access code modal
   }
 
+  // dismiss request access code modal
   const closeModal = () => {
-    setReqAccessCode(false)
+    setReqAccessCode(false) // dismiss modal
   }
 
+  // load AMA sessions on page load
   useEffect(() => {
     loadAmaSessions();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,16 +174,16 @@ export default function ListOwnerAma() {
       </div>
 
       <Modal centered
-        isOpen={reqAccessCode}
-        toggle={function noRefCheck(){}}
+        isOpen={reqAccessCode} 
       >
         <ModalHeader toggle={function noRefCheck(){}} close={<button className="close" onClick={() => closeModal()}>×</button>}>
           {sessionName}
         </ModalHeader>
         <ModalBody>
-        <div className="pb-3">This AMA session requires an access code to join. If you do not have an access code, please contact the host.</div>
+          <div className="pb-3">
+            This AMA session requires an access code to join. If you do not have an access code, please contact the host.
+          </div>
           <FormGroup>
-            
             <Input
                 id="accessCode"
                 name="accessCode"

@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
-import  { getStatusName }  from "../lib/utils"
+import { AmaSession } from "interfaces/AmaSession";
+import { getStatusName }  from "../lib/utils"
 import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
-import { AmaSession } from "interfaces/AmaSession";
+
 import {
   Button,
   Table,
@@ -18,7 +19,6 @@ export default function ListOwnerAma() {
   let ownerAddress : string;
 
   const loadOwnerAmaSessions = async () => {
-    
     ownerAddress = ReactSession.get("owner");
 
     if (!ownerAddress) {
@@ -40,10 +40,10 @@ export default function ListOwnerAma() {
     let result = await res.json()
 
     if (res.status === 500) {
-      toast(res)
       console.log(res)
+      toast.error("Failed to load AMA sessions")
     } else {
-        console.log("AMA sessions fetched")
+        // parse data for display
         const MAX_DESC_LENGTH = 100;
         result.map((r: { statusName: string; status: any; description: string }) => {
           r.statusName = getStatusName(r.status) // show status name instead of id
@@ -53,31 +53,28 @@ export default function ListOwnerAma() {
     }
   }
 
+  // view session details
   const handleView = async (sessionId : number) => {
     console.log("handle view for = ", sessionId)
-    const endpoint = `/api/session/${sessionId}`;
-
-    const options = {
-      method: 'GET'
-    }
   
-    const res = await fetch(endpoint, options)
+    const res = await fetch(`/api/session/${sessionId}`, {
+      method: 'GET'
+    })
       
     if (res.status === 500) {
         const errorMessage = await res.text()
         console.log(errorMessage)
+        toast.error(errorMessage)
     } else {
-        console.log("AMA sessions fetched")
         let result = await res.json()
-        console.log("session data = ", result)
-
         result.statusName = getStatusName(result.status)
         setSessionData(result)
     }
   }
 
+  // update session status
   const handleStatus = async ( sessionId: number, command: string) => {
-    console.log("handle status change: for ", sessionId, command, ownerAddress)
+    console.log("handle status change: for ", sessionId, command)
 
     const options = {
         method: 'PUT',
@@ -90,12 +87,10 @@ export default function ListOwnerAma() {
       const res = await fetch(`/api/session/status/${sessionId}`, options)
       
     if (res.status === 500) {
-        console.log("Error:", res)
+        console.log("handleStatus err:", res)
         const errorMessage = await res.text()
-        console.log(errorMessage)
         toast.error(errorMessage);
     } else {
-        console.log("AMA session status updated", res)
         // refresh page with updated data
         await loadOwnerAmaSessions()
         await handleView(sessionId)
@@ -103,6 +98,7 @@ export default function ListOwnerAma() {
     }
   }
 
+  // load host's AMA sessions on page load
   useEffect(() => {
     loadOwnerAmaSessions();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,10 +109,10 @@ export default function ListOwnerAma() {
       <div className="container">
         <div className="row pt-3 pb-3">
           <div className="col-10">
-          <h5 className="display-3">My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}</h5>
+            <h5 className="display-3">My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}</h5>
           </div>
           <div className="col-2">
-          <Button type="button" className="btn btn-primary float-right" onClick={loadOwnerAmaSessions}><ArrowClockwise size="24" /></Button>
+            <Button type="button" className="btn btn-primary float-right" onClick={loadOwnerAmaSessions}><ArrowClockwise size="24" /></Button>
           </div>
         </div>
         <div className="row">
@@ -164,9 +160,7 @@ export default function ListOwnerAma() {
                       <div className="row">
                         <div className="col-12">
                         <div className="card">
-                        <div className="card-header">
-                          
-                        </div>
+                        <div className="card-header"></div>
                           <div className="card-body">
                             <h5 className="card-title">{sessionData.name}</h5>
                             <h6 className="card-subtitle mb-2 text-muted">Hosted by: {sessionData.hosts}</h6>
@@ -176,13 +170,9 @@ export default function ListOwnerAma() {
                               <div><Button onClick={() => handleStatus(sessionData.session_id, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(sessionData.session_id, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
                           </div>
                         </div>
-
                         </div>
                       </div>
                     </div>
-
-                    
-                    
                   </div>
                 }
               </div>

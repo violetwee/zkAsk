@@ -7,10 +7,9 @@ import "@appliedzkp/semaphore-contracts/base/SemaphoreGroups.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-/// @title Greeters contract.
-/// @dev The following code is just a example to show how Semaphore con be used.
+/// @title AMA contract.
 contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
-    // A new greeting is published every time a user's proof is validated.
+    // Events
     event NewQuestion(uint256 sessionId, uint256 questionId, bytes32 signal);
     event QuestionVoted(uint256 sessionId, uint256 questionId, uint256 votes);
     event AmaSessionCreated(uint256 indexed sessionId);
@@ -24,6 +23,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     );
     event AmaSessionStatusChanged(uint256 sessionId, uint256 statusId);
 
+    // AMA session states
     // NotStarted: Allows host to pre-create AMA session but keep it as inactive state. Audience may join but cannot post questions yet
     // Active: Audience may post questions
     // Paused: Host may pause a session temporarily if the number of questions is overwhelming or if the host wants to answer the current set of questions first
@@ -68,29 +68,26 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     modifier amaActive(uint256 sessionId) {
         require(
             amaSessions[sessionId].state == ACTIVE,
-            "AMA session's state should be Active"
+            "AMA session's state is not Active"
         );
         _;
     }
     modifier amaPaused(uint256 sessionId) {
         require(
             amaSessions[sessionId].state == PAUSED,
-            "AMA session's state should be Paused"
+            "AMA session's state is not Paused"
         );
         _;
     }
     modifier amaEnded(uint256 sessionId) {
-        require(
-            amaSessions[sessionId].state == ENDED,
-            "AMA session's state should be Ended"
-        );
+        require(amaSessions[sessionId].state == ENDED, "AMA session has Ended");
         _;
     }
     modifier canJoinAma(uint256 sessionId) {
         require(
             amaSessions[sessionId].state == PAUSED ||
                 amaSessions[sessionId].state == ACTIVE,
-            "AMA session's state should be Paused or Active"
+            "AMA session's state is not Paused or Active"
         );
         _;
     }
@@ -113,6 +110,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         FUNCTIONS
     */
     // Session state changes
+    // @dev Start an AMA session. Sets session state to Active. Participants can only post questions when status is Active.
+    // @param sessionId Unique session id
     function startAmaSession(uint256 sessionId)
         external
         amaExists(sessionId)
@@ -123,16 +122,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionStatusChanged(sessionId, ACTIVE);
     }
 
-    function resumeAmaSession(uint256 sessionId)
-        external
-        amaExists(sessionId)
-        onlyAmaSessionOwner(sessionId)
-        amaPaused(sessionId)
-    {
-        amaSessions[sessionId].state = ACTIVE;
-        emit AmaSessionStatusChanged(sessionId, ACTIVE);
-    }
-
+    // @dev Pause an AMA session. Sets session state to Paused. Participants cannot post questions when status is Paused.
+    // @param sessionId Unique session id
     function pauseAmaSession(uint256 sessionId)
         external
         amaExists(sessionId)
@@ -143,6 +134,20 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionStatusChanged(sessionId, PAUSED);
     }
 
+    // @dev Resume a paused AMA session. Sets session state to Active.
+    // @param sessionId Unique session id
+    function resumeAmaSession(uint256 sessionId)
+        external
+        amaExists(sessionId)
+        onlyAmaSessionOwner(sessionId)
+        amaPaused(sessionId)
+    {
+        amaSessions[sessionId].state = ACTIVE;
+        emit AmaSessionStatusChanged(sessionId, ACTIVE);
+    }
+
+    // @dev End an AMA session. Sets session state to Ended.
+    // @param sessionId Unique session id
     function endAmaSession(uint256 sessionId)
         external
         amaExists(sessionId)
@@ -153,6 +158,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     }
 
     // Session activities
+    // @dev Create an AMA session. Creates a Semaphore Group.
+    // @param sessionId Unique session id
     function createAmaSession(uint256 sessionId) external {
         _createGroup(sessionId, 20, 0);
 
@@ -165,6 +172,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionCreated(sessionId);
     }
 
+    // @dev Participant joins an AMA session. Adds a member identity commitment to the Semaphore Group.
+    // @param sessionId Unique session id
+    // @param identityCommitment Participant's identity commitment
     function joinAmaSession(uint256 sessionId, uint256 identityCommitment)
         external
         amaExists(sessionId)
@@ -176,14 +186,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit UserJoinedAmaSession(sessionId, identityCommitment);
     }
 
-    function getAmaSession(uint256 sessionId)
-        external
-        view
-        returns (AmaSession memory)
-    {
-        return amaSessions[sessionId];
-    }
-
+    // @dev Returns all identity commitments for a session/Sempahore Group.
+    // @param sessionId Unique session id
+    // @return Array of identity commitments
     function getIdentityCommitments(uint256 sessionId)
         external
         view
@@ -192,6 +197,14 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         return amaSessionIdentityCommitments[sessionId];
     }
 
+    // @dev Participant posts a question to an AMA session.
+    // @param sessionId Unique session id
+    // @param questionId Unique question id
+    // @param signal Semaphore signal (either "post" or "vote")
+    // @param root Merkle root used for verification
+    // @param nullifierHash Nullifier hash used for verification
+    // @param externalNullifier Session id and question id (ie. 1_1). Prevents double posting of same ids.
+    // @param proof Proof data to determine that user is a member of the Semaphore Group
     function postQuestion(
         uint256 sessionId,
         uint256 questionId,
@@ -213,17 +226,23 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             "AMA: the proof is not valid"
         );
 
-        // add votes to question. questionId is unique across all sessions
+        // questionId is unique across all sessions
         bytes32 id = keccak256(abi.encodePacked(questionId));
         Question memory q = Question({questionId: questionId, votes: 0});
         amaSessionQuestion[id] = q;
 
-        // Prevent double-posting of the same question in the same ama session
         _saveNullifierHash(nullifierHash);
-
         emit NewQuestion(sessionId, questionId, signal);
     }
 
+    // @dev Participant votes on a question in an AMA session.
+    // @param sessionId Unique session id
+    // @param questionId Unique question id
+    // @param signal Semaphore signal (either "post" or "vote")
+    // @param root Merkle root used for verification
+    // @param nullifierHash Nullifier hash used for verification
+    // @param externalNullifier Session id and question id (ie. 1_1). Prevents double voting.
+    // @param proof Proof data to determine that user is a member of the Semaphore Group
     function voteQuestion(
         uint256 sessionId,
         uint256 questionId,
@@ -254,7 +273,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         bytes32 id = keccak256(abi.encodePacked(questionId));
         amaSessionQuestion[id].votes += 1;
 
-        // Prevent double-voting of the same question in the same ama session
+        // Prevent double-voting of the same question
         _saveNullifierHash(nullifierHash);
 
         emit QuestionVoted(sessionId, questionId, amaSessionQuestion[id].votes);

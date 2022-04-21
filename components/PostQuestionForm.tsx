@@ -17,7 +17,7 @@ import {
 } from "reactstrap";
 
 const initialValues = {
-  content: "Is zkSnarks or zkStarks better?"
+  content: ""
 };
 
 type Props = {
@@ -36,7 +36,8 @@ export default function PostQuestionForm({ sessionId }: Props) {
     });
   };
 
-  const handleSubmit = async (event : React.FormEvent<HTMLFormElement>) => {
+  // post question 
+  const handlePostQuestion = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log("handle submit:", sessionId)
     setShouldReloadQuestions(false)
@@ -56,7 +57,7 @@ export default function PostQuestionForm({ sessionId }: Props) {
     const { content } = values;
     const signal = "post"
 
-    // insert question into db first, because we need it the questionId as nullifier
+    // insert question into db first, because we need the questionId as nullifier
     const options = {
         method: 'POST',
         headers: {
@@ -97,30 +98,30 @@ export default function PostQuestionForm({ sessionId }: Props) {
     const solidityProof = Semaphore.packToSolidityProof(proof)
 
     const res = await fetch(`/api/question/post/${sessionId}`, {
-        method: "POST",
-        body: JSON.stringify({
-            questionId,
-            root: (merkleProof.root).toString(),
-            nullifierHash: publicSignals.nullifierHash,
-            externalNullifier: publicSignals.externalNullifier,
-            solidityProof: solidityProof
-        })
+      method: "POST",
+      body: JSON.stringify({
+          questionId,
+          root: (merkleProof.root).toString(),
+          nullifierHash: publicSignals.nullifierHash,
+          externalNullifier: publicSignals.externalNullifier,
+          solidityProof: solidityProof
+      })
     })
 
-    if (res.status === 500) {
-        console.log("Error", response)
-        toast.error("Failed to post question")
+    if (res.status === 500) { 
+        console.log("handlePostQuestion err", res)
+        const errorMessage = await res.text()
+        toast.error(errorMessage);
     } else {
-        console.log("Question posted onchain!")
         setShouldReloadQuestions(true)
-        toast("Question posted")
         setValues(initialValues)
+        toast("Question posted")
     }
   }
 
   return (
     <div className="p-3">
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handlePostQuestion}>
           <Row>
             <Col md="12">
               <FormGroup floating>

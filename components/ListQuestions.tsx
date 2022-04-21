@@ -3,10 +3,11 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { generateMerkleProof, genExternalNullifier, MerkleProof, Semaphore } from "@zk-kit/protocols"
+import { AmaQuestion } from '../interfaces/AmaQuestion'
 import { ArrowClockwise } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AmaQuestion } from '../interfaces/AmaQuestion'
+
 import {
   Button,
   Table
@@ -20,6 +21,7 @@ type Props = {
 export default function ListQuestions({ sessionId, shouldReloadQuestions }: Props) {
   const [questions, setQuestions] = React.useState([])  
 
+  // load all questions for selected session id
   const loadQuestions = async () => {
     console.log("loadQuestions for sessionId: ", sessionId)
 
@@ -27,19 +29,22 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
       method: 'GET'
     })
     let result = await response.json()
-    console.log(result)
 
     if (response.status === 500) {
-        console.log("Error: ", response)
+        console.log("loadQuestions err: ", response)
+        toast.error("Failed to load AMA questions")
     } else {
-        console.log("AMA questions fetched")
         setQuestions(result)
     }
   }
 
+  // submit vote for a selected question
+  // participant cannot vote for his/her questions
+  // participant can only vote once for each question
   const handleVote = async (sessionId: number,  questionId: number) => {
     // event.preventDefault();
     console.log("handle vote:", sessionId, questionId)
+
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
 
@@ -92,17 +97,16 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
 
     if (res.status === 500) {
       const errorMessage = await res.text()
-      console.log(errorMessage)
       toast.error(errorMessage);
     } else {
-        console.log("Question voted onchain!")
-        loadQuestions()
-        toast("Vote submitted onchain")
+      loadQuestions()
+      toast("Vote submitted onchain")
     }
   }
 
+  // reload questions list when shouldReloadQuestions = true
   useEffect(() => {
-      loadQuestions();
+    loadQuestions();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldReloadQuestions]);
 
@@ -111,14 +115,13 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
       <div className="container">
         <div className="row align-items-start pt-5 pb-3">
           <div className="col">
-          <h5>Questions {questions ? "(" + questions.length + ")" : ""}</h5>
+            <h5>Questions {questions ? "(" + questions.length + ")" : ""}</h5>
           </div>
           <div className="col">
-          <Button type="button" className="btn btn-primary float-right" onClick={loadQuestions}><ArrowClockwise size="24" /></Button>
+            <Button type="button" className="btn btn-primary float-right" onClick={loadQuestions}><ArrowClockwise size="24" /></Button>
           </div>
         </div>
       </div>
-      
       <div>
         <Table> 
           <tbody>
@@ -126,7 +129,9 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
             <tr key={q.question_id}>
               <td>{index+1}</td>
               <td>{q.content} {q.votes > 0 ? "(" + q.votes + ")" : ""}</td>
-              <td align="right"><Button color="primary" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button></td>
+              <td align="right">
+                <Button color="primary" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
+              </td>
             </tr>)}
           </tbody>
         </Table>
