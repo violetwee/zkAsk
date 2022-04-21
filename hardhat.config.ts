@@ -18,17 +18,13 @@ const config: HardhatUserConfig = {
     },
     networks: {
         testnet: {
-            url: `https://api.s0.b.hmny.io`,
-            accounts: [`0x${process.env.HARMONY_PRIVATE_KEY}`]
+            url: `${process.env.HMY_TESTNET_WSS_URL}`,
+            accounts: [`0x${process.env.HMY_PRIVATE_KEY}`]
         },
         mainnet: {
-            url: `https://api.harmony.one`,
-            accounts: [`0x${process.env.HARMONY_PRIVATE_KEY}`]
+            url: `${process.env.HMY_MAINNET_WSS_URL}`,
+            accounts: [`0x${process.env.HMY_PRIVATE_KEY}`]
         }
-        // ropsten: {
-        //     url: process.env.ROPSTEN_URL || "",
-        //     accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : []
-        // }
     },
     gasReporter: {
         enabled: process.env.REPORT_GAS !== undefined,

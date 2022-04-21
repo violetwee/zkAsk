@@ -14,9 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // const contract = new Contract(CONSTANTS.AMA_CONTRACT_ADDRESS, AMA.abi, provider.getSigner())
   // let contractOwner = contract.connect(provider.getSigner())
 
-  const web3 = new Web3(process.env.HARMONY_WSS_URL as string);
+  const web3 = new Web3(process.env.HMY_WSS_URL as string);
 
-  let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount("0x" + process.env.HARMONY_PRIVATE_KEY as string);
+  let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount("0x" + process.env.HMY_PRIVATE_KEY as string);
   web3.eth.accounts.wallet.add(hmyMasterAccount);
   web3.eth.defaultAccount = hmyMasterAccount.address
 

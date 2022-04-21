@@ -74,8 +74,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
       method: 'GET'
     })).json()
 
-    console.log("identityCommitments = ", identityCommitments)
-
     // generate proofs
     let merkleProof : MerkleProof
     try {

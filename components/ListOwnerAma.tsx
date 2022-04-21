@@ -31,8 +31,6 @@ export default function ListOwnerAma() {
       signer = ethersProvider.getSigner(ownerAddress)
       await signer.signMessage("Sign this message to access Host features!")
 
-      
-      // ownerAddress = await signer.getAddress()
       ReactSession.set("owner", ownerAddress);
     }
   
@@ -93,7 +91,9 @@ export default function ListOwnerAma() {
       
     if (res.status === 500) {
         console.log("Error:", res)
-        toast.error("Failed to update session status")
+        const errorMessage = await res.text()
+        console.log(errorMessage)
+        toast.error(errorMessage);
     } else {
         console.log("AMA session status updated", res)
         // refresh page with updated data
