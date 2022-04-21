@@ -12,7 +12,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } = req
 
   // verify that the access code is valid 
-  const accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
+  let accessCodeHash: string = "";
+  if (accessCode)
+    accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
 
   const result = await excuteQuery({
     query: 'SELECT session_id FROM ama_sessions WHERE session_id = ? AND status IN (?, ?) AND (access_code_hash IS NULL OR access_code_hash = ?)',

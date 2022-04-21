@@ -10,10 +10,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         // save ama session to off-chain database
-        let accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
+        let accessCodeHash: string = "";
+        if (accessCode)
+            accessCodeHash = utils.keccak256(utils.toUtf8Bytes(accessCode));
+
         const result = await excuteQuery({
             query: 'INSERT INTO ama_sessions (name, hosts, description, created_at, owner, access_code_hash) VALUES (?, ?, ?, ?, ?, ?)',
-            values: [name, host, desc, Math.floor(Date.now() / 1000), owner, accessCodeHash]
+            values: [name, host, desc, Math.floor(Date.now() / 1000), owner, accessCodeHash == "" ? null : accessCodeHash]
         });
 
 

@@ -97,12 +97,9 @@ export default function ListOwnerAma() {
     } else {
         console.log("AMA session status updated", res)
         // refresh page with updated data
-        toast("Updating status...", {
-          onClose: async () => {
-            await loadOwnerAmaSessions()
-            await handleView(sessionId)
-          }
-        })
+        await loadOwnerAmaSessions()
+        await handleView(sessionId)
+        toast("Status updated")
     }
   }
 
