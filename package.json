@@ -35,7 +35,6 @@
     },
     "devDependencies": {
         "@appliedzkp/semaphore-contracts": "^0.7.0",
-        "@netlify/plugin-nextjs": "^4.4.2",
         "@nomiclabs/hardhat-ethers": "^2.0.4",
         "@nomiclabs/hardhat-waffle": "^2.0.2",
         "@openzeppelin/contracts": "^4.5.0",
