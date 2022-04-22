@@ -1,6 +1,6 @@
 import Web3 from 'web3'
 import config from './config.json'
-import AMA from "../artifacts/contracts/AMA.sol/AMA.json"
+import AMA from "artifacts/contracts/AMA.sol/AMA.json"
 import { AbiItem } from 'web3-utils'
 
 const getContract = async () => {
