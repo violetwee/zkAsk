@@ -14,8 +14,7 @@
         "report-gas": "REPORT_GAS=true hardhat test",
         "start": "next start",
         "build": "next build",
-        "lint": "next lint",
-        "postbuild": "next-on-netlify"
+        "lint": "next lint"
     },
     "dependencies": {
         "@metamask/detect-provider": "^1.2.0",
