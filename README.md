@@ -1,6 +1,8 @@
 # zku.one Final Project : zkAsk
 
-zkAsk allows a host to create an AMA session where the audience can join and ask questions anonymously, creating an open and safe environment. Audiences can also vote anonymously for questions to be answered (community moderation via anonymous voting). It leverages on Semaphore and zk-proofs to preserve the user’s identity.
+zkAsk allows a host to create an AMA session where the audience can join and ask questions anonymously, creating an open and safe environment. Audiences can also vote anonymously for questions to be answered (community moderation via anonymous voting).
+
+It leverages on Semaphore and zk-proofs to preserve the user’s identity.
 
 - Demo video: https://www.youtube.com/watch?v=LbdWAydgKjQ
 - Demo site: https://testnet.zkask.one
@@ -20,7 +22,7 @@ zkAsk allows a host to create an AMA session where the audience can join and ask
 ## Audience/Participant
 
 - list AMA sessions that are paused/active (ie. ready for audiences to join)
-- join a public session or enter access code to join a secured AMA session
+- join a public session or enter access code to join a private AMA session
 - post a question to an AMA session
 - vote on other audience's questions
 
