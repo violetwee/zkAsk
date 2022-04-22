@@ -87,7 +87,6 @@ export default function ListOwnerAma() {
       const res = await fetch(`/api/session/status/${sessionId}`, options)
       
     if (res.status === 500) {
-        console.log("handleStatus err:", res)
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {

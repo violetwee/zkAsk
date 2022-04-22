@@ -31,7 +31,6 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
     let result = await response.json()
 
     if (response.status === 500) {
-        console.log("loadQuestions err: ", response)
         toast.error("Failed to load AMA questions")
     } else {
         setQuestions(result)

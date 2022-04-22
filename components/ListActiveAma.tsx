@@ -84,7 +84,6 @@ export default function ListActiveAma() {
     const res = await fetch(`/api/session/join/${sessionId}`, options);
 
     if (res.status === 500) {
-      console.log(res)
       const errorMessage = await res.text()
       toast.error(errorMessage);
     } else {

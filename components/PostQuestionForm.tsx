@@ -109,7 +109,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
     })
 
     if (res.status === 500) { 
-        console.log("handlePostQuestion err", res)
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {
