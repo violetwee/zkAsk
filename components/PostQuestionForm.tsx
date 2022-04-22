@@ -109,7 +109,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
     })
 
     if (res.status === 500) { 
-        console.log("handlePostQuestion err", res)
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {
@@ -130,6 +129,7 @@ export default function PostQuestionForm({ sessionId }: Props) {
                   name="content"
                   type="text" value={values.content} 
                   maxLength={500}
+                  placeholder="Type your question..."
                   onChange={handleInputChange} required 
                 />
               </FormGroup>

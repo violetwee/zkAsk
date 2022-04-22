@@ -10,12 +10,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       values: [CONSTANTS.PAUSED, CONSTANTS.ACTIVE]
     });
 
-    console.log(result)
     if (result && result.length > 0) {
       res.status(200).send(result)
     } else {
-      console.log("Unable to fetch AMA sessions")
-      res.status(result.status).send(result)
+      res.status(500).send(result)
     }
 
   } catch (error: any) {

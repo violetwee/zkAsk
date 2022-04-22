@@ -5,7 +5,6 @@ import excuteQuery from 'lib/db'
 import { getContract } from 'lib/contract'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("body: ", req.body);
   const { identityCommitment, accessCode } = req.body;
   const {
     query: { sessionId }
@@ -29,7 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await contract.methods.joinAmaSession(sessionId, BigNumber.from(identityCommitment)).send({ from: account, gas: 6721900 })
       res.status(200).end()
     } catch (error: any) {
-      console.log(error.reason)
       res.status(500).send(error.reason || "Failed to join session")
     }
   } else {

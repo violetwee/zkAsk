@@ -40,7 +40,6 @@ export default function ListOwnerAma() {
     let result = await res.json()
 
     if (res.status === 500) {
-      console.log(res)
       toast.error("Failed to load AMA sessions")
     } else {
         // parse data for display
@@ -63,7 +62,6 @@ export default function ListOwnerAma() {
       
     if (res.status === 500) {
         const errorMessage = await res.text()
-        console.log(errorMessage)
         toast.error(errorMessage)
     } else {
         let result = await res.json()
@@ -87,7 +85,6 @@ export default function ListOwnerAma() {
       const res = await fetch(`/api/session/status/${sessionId}`, options)
       
     if (res.status === 500) {
-        console.log("handleStatus err:", res)
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {
