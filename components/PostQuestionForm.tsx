@@ -129,6 +129,7 @@ export default function PostQuestionForm({ sessionId }: Props) {
                   name="content"
                   type="text" value={values.content} 
                   maxLength={500}
+                  placeholder="Type your question..."
                   onChange={handleInputChange} required 
                 />
               </FormGroup>
