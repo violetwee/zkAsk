@@ -21,7 +21,7 @@ export default function Host() {
     return (
         <div>
             <Head>
-                <title>zkAMA - Be Heard. Be Anonymous.</title>
+                <title>zkAsk - Be Heard. Be Anonymous.</title>
                 <meta name="description" content="Participate in AMA sessions anonymously" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
