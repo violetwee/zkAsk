@@ -1,7 +1,7 @@
 {
     "name": "semaphore-boilerplate",
     "version": "1.0.0",
-    "description": "A simple Next.js/Hardhat privacy application with Semaphore.",
+    "description": "An AMA privacy application built with Semaphore.",
     "license": "GPL-3.0",
     "private": true,
     "scripts": {
