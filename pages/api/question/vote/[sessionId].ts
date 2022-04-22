@@ -14,16 +14,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // send onchain
   try {
     let txn = await contract.methods.voteQuestion(sessionId, questionId, utils.formatBytes32String("vote"), root, nullifierHash, externalNullifier, solidityProof).send({ from: account, gas: 6721900 })
+    // console.log(txn.events)
 
     let { returnValues } = txn.events.QuestionVoted
     let numVotes = returnValues["votes"]
     let qId = returnValues["questionId"]
 
     // update offchain db
-    await excuteQuery({
+    const result = await excuteQuery({
       query: 'UPDATE ama_questions SET votes = ? WHERE question_id = ?',
       values: [numVotes, qId]
     });
+    console.log("QuestionVoted / update DB: ", result)
 
     res.status(200).end()
   } catch (error: any) {

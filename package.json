@@ -1,7 +1,7 @@
 {
-    "name": "zkAsk",
+    "name": "semaphore-boilerplate",
     "version": "1.0.0",
-    "description": "zkAsk allows an audience to ask questions anonymously. It leverages on Semaphore and zk-proofs to preserve the user’s identity.",
+    "description": "A simple Next.js/Hardhat privacy application with Semaphore.",
     "license": "GPL-3.0",
     "private": true,
     "scripts": {
@@ -17,10 +17,13 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@ethersproject/abstract-signer": "^5.6.0",
         "@metamask/detect-provider": "^1.2.0",
+        "@metamask/providers": "^8.1.1",
         "@zk-kit/identity": "^1.4.1",
         "@zk-kit/protocols": "^1.11.0",
         "assert": "^2.0.0",
+        "harmony-ethers-openswap-sdk": "^0.0.4",
         "headroom.js": "^0.12.0",
         "next": "^12.1.5",
         "react": "17.0.2",
@@ -31,7 +34,8 @@
         "react-router-dom": "^6.3.0",
         "react-toastify": "^8.2.0",
         "sharp": "^0.30.4",
-        "web3": "^1.7.3"
+        "web3": "^1.7.3",
+        "web3-eth-contract": "^1.7.3"
     },
     "devDependencies": {
         "@appliedzkp/semaphore-contracts": "^0.7.0",

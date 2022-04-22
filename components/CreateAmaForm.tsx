@@ -67,9 +67,11 @@ export default function CreateAmaForm() {
     const res = await fetch('/api/session/create', options)
 
     if (res.status === 500) {
+        console.log("res", res)
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {
+        console.log("AMA session created and saved to database")
         setValues(initialValues) // reset form values
         toast("AMA session created")
     }

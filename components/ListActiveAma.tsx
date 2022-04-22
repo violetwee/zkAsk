@@ -84,6 +84,7 @@ export default function ListActiveAma() {
     const res = await fetch(`/api/session/join/${sessionId}`, options);
 
     if (res.status === 500) {
+      console.log(res)
       const errorMessage = await res.text()
       toast.error(errorMessage);
     } else {
@@ -197,7 +198,7 @@ export default function ListActiveAma() {
             color="primary"
             onClick={() => handleJoin(sessionId, accessCode)}
           >
-            UNLOCK
+            JOIN NOW
           </Button>
           {' '}
           <Button onClick={() => closeModal()}>

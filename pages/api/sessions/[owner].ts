@@ -10,5 +10,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     query: 'SELECT session_id, name, hosts, description, owner, created_at, status FROM ama_sessions WHERE owner = ? order by session_id ASC',
     values: [owner]
   });
+  console.log(result)
   res.status(200).send(result)
 }

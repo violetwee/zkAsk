@@ -13,12 +13,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // send onchain
-    await contract.methods.postQuestion(sessionId, questionId, utils.formatBytes32String("post"), root, nullifierHash, externalNullifier, solidityProof).send({ from: account, gas: 6721900 })
+    const txn = await contract.methods.postQuestion(sessionId, questionId, utils.formatBytes32String("post"), root, nullifierHash, externalNullifier, solidityProof).send({ from: account, gas: 6721900 })
+    console.log(txn)
 
-    await excuteQuery({
+    const result = await excuteQuery({
       query: 'UPDATE ama_questions SET is_posted = ? WHERE question_id = ?',
       values: [1, questionId]
     });
+    console.log("NewQuestion / update DB: ", result)
     res.status(200).end()
   }
   catch (error: any) {
