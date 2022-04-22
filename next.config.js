@@ -2,6 +2,7 @@
 
 const nextConfig = {
     reactStrictMode: true,
+    target: "serverless",
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         if (!isServer) {
             config.plugins.push(
