@@ -15,18 +15,18 @@ To try out the demo site, ensure that you have at least two MetaMask accounts co
 
 - create AMA sessions which may be public or secured with an access code (ie. audience would need an access code to join the AMA session - useful for study groups where only students can join, or corporate groups where only employees can join)
 - update status of the AMA session
-  - start: Audience may join and post questions
-  - pause: Audience may join but cannot post questions
-  - resume: Audience may post questions
-  - end: Session has ended
+  - start: audience may join and post questions
+  - pause: audience may join but cannot post questions
+  - resume: audience may post questions
+  - end: session has ended
 - list created AMA sessions
 
 ## Audience/Participant
 
 - list AMA sessions that are paused/active (ie. ready for audiences to join)
 - join a public session or enter access code to join a private AMA session
-- post a question to an AMA session
-- vote on other audience's questions
+- post a question to an AMA session anonymously
+- vote on other audience's questions anonymously
 
 # Contract Addresses (Harmony Testnet)
 
