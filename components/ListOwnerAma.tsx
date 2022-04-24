@@ -108,14 +108,14 @@ export default function ListOwnerAma() {
       <div className="container">
         <div className="row pt-3 pb-3">
           <div className="col-10">
-            <h5 className="display-3">My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}</h5>
+            <h5 className="display-3 pr-3">My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}</h5>
           </div>
           <div className="col-2">
             <Button type="button" className="btn btn-primary float-right" onClick={loadOwnerAmaSessions}><ArrowClockwise size="24" /></Button>
           </div>
         </div>
         <div className="row">
-          <div className="col">
+          <div className="col scroll-wrapper">
             <Table>
               <thead>
                 <tr>

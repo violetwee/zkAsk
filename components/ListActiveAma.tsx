@@ -121,12 +121,12 @@ export default function ListActiveAma() {
       <div className="container pt-6 pb-5">{!hasJoined &&
         <div className="row">
          <div className="col-10">
-            <h5 className="display-4">AMA Sessions : Now on Air</h5>
+            <h5 className="display-4 pr-3">AMA Sessions : Now on Air</h5>
           </div>
           <div className="col-2">
             <Button type="button" className="btn btn-primary float-right" onClick={loadAmaSessions}><ArrowClockwise size="24" /></Button>
           </div>
-          <div className="col-12 pt-3">
+          <div className="col-12 pt-3 scroll-wrapper">
             <Table>
               <thead>
                 <tr>
@@ -154,7 +154,9 @@ export default function ListActiveAma() {
                 {sessions && sessions.map((session: AmaSession, index: number) => 
                 <tr key={session.session_id}>
                   <td>{index+1}</td>
-                  <td>{session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
+                  <td>
+                    {session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}
+                  </td>
                   <td>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>

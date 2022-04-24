@@ -102,6 +102,10 @@ body {
 	outline: 0 !important;
 }
 
+.scroll-wrapper {
+	overflow: auto;
+}
+
 hr {
 	box-sizing: content-box;
 	height: 0;
