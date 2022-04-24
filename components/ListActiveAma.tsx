@@ -154,10 +154,10 @@ export default function ListActiveAma() {
                 {sessions && sessions.map((session: AmaSession, index: number) => 
                 <tr key={session.session_id}>
                   <td>{index+1}</td>
-                  <td>
+                  <td style={{minWidth: 200}}>
                     {session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}
                   </td>
-                  <td>{session.description}</td>
+                  <td style={{minWidth: 280}}>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
                   <td><Button color="success" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")}>JOIN</Button></td>

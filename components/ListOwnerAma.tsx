@@ -143,8 +143,8 @@ export default function ListOwnerAma() {
                 {sessions && sessions.map((session : AmaSession, index: number) => 
                 <tr key={session.session_id}>
                   <td>{index+1}</td>
-                  <td>{session.name} {session.access_code_hash ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</td>
-                  <td>{session.description}</td>
+                  <td  style={{minWidth: 200}}>{session.name}</td>
+                  <td  style={{minWidth: 280}}>{session.description}</td>
                   <td>{session.hosts}</td>
                   <td>{session.statusName}</td>
                   <td><Button color="primary" onClick={() => handleView(session.session_id)}>VIEW</Button></td>
