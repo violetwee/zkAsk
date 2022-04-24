@@ -3,7 +3,7 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { AmaSession } from "interfaces/AmaSession";
 import { getStatusName }  from "../lib/utils"
-import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
+import { ArrowClockwise } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
