@@ -38,6 +38,11 @@ export default function CreateAmaForm() {
     event.preventDefault();
 
     const provider = (await detectEthereumProvider()) as any
+    if (!provider) {
+      toast("Please install MetaMask and try again!")
+      return;
+    }
+    
     await provider.request({ method: "eth_requestAccounts" })
     const ethersProvider = new providers.Web3Provider(provider)
     const signer = ethersProvider.getSigner()

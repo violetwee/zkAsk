@@ -59,10 +59,14 @@ export default function ListActiveAma() {
   const handleJoin = async (sessionId : number, accessCode: string) => {
     console.log("handle join for = ", sessionId, accessCode)
 
-    toast("Create your Semaphore identity...")
+   
     const provider = (await detectEthereumProvider()) as any
+    if (!provider) {
+      toast("Please install MetaMask and try again!")
+      return;
+    }
     await provider.request({ method: "eth_requestAccounts" })
-
+    toast("Create your Semaphore identity...")
     const ethersProvider = new providers.Web3Provider(provider)
     const signer = ethersProvider.getSigner()
     const message = await signer.signMessage('Sign this message to create your identity!')

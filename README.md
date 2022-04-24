@@ -7,6 +7,8 @@ It leverages on Semaphore and zk-proofs to preserve the user’s identity.
 - Demo video: https://www.youtube.com/watch?v=LbdWAydgKjQ
 - Demo site: https://testnet.zkask.one
 
+To try out the demo site, ensure that you have at least two MetaMask accounts connected to the Harmony Testnet (one for Host and one for Audience).
+
 # Features
 
 ## Host
@@ -66,3 +68,4 @@ Run `yarn deploy --network testnet`
 - [Interep](https://github.com/interep-project)
 - [Hardhat](https://hardhat.org/)
 - [Solidity](https://docs.soliditylang.org/en/v0.8.13/)
+- [Harmony Testnet Faucet](https://faucet.pops.one/)
