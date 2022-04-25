@@ -3,13 +3,18 @@ import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { AmaSession } from "interfaces/AmaSession";
 import { getStatusName }  from "../lib/utils"
-import { ArrowClockwise } from 'react-bootstrap-icons';
+import { ArrowClockwise, CircleFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
 
 import {
   Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardSubtitle,
+  CardText,
   Table,
 } from "reactstrap";
 
@@ -107,75 +112,43 @@ export default function ListOwnerAma() {
     <div>
       <div className="container">
         <div className="row pt-3 pb-3">
-          <div className="col-10">
-            <h5 className="display-3 pr-3">My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}</h5>
+          <div className="col-12 text-center display-4 pb-5">
+            AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}
           </div>
-          <div className="col-2">
+          <div className="col-12">
             <Button type="button" className="btn btn-primary float-right" onClick={loadOwnerAmaSessions}><ArrowClockwise size="24" /></Button>
           </div>
         </div>
         <div className="row">
-          <div className="col scroll-wrapper">
-            <Table>
-              <thead>
-                <tr>
-                  <th>
-                    #
-                  </th>
-                  <th>
-                    Name
-                  </th>
-                  <th>
-                    Description
-                  </th>
-                  <th>
-                    Host
-                  </th>
-                  <th>
-                    Status
-                  </th>
-                  <th>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sessions && sessions.map((session : AmaSession, index: number) => 
-                <tr key={session.session_id}>
-                  <td>{index+1}</td>
-                  <td  style={{minWidth: 200}}>{session.name}</td>
-                  <td  style={{minWidth: 280}}>{session.description}</td>
-                  <td>{session.hosts}</td>
-                  <td>{session.statusName}</td>
-                  <td><Button color="primary" onClick={() => handleView(session.session_id)}>VIEW</Button></td>
-                </tr>)}
-              </tbody>
-            </Table>
-              {/* Session data */}
-              <div>
-                {sessionData &&
-                  <div>
-                    <div className="container">
-                      <div className="row">
-                        <div className="col-12">
-                        <div className="card">
-                        <div className="card-header"></div>
-                          <div className="card-body">
-                            <h5 className="card-title">{sessionData.name}</h5>
-                            <h6 className="card-subtitle mb-2 text-muted">Hosted by: {sessionData.hosts}</h6>
-                            <p className="card-text">{sessionData.description}</p>
-                            {sessionData.status === 1 ? <Button color="success" onClick={() => handleStatus(sessionData.session_id, 'start')}>Start</Button> : sessionData.status === 2 ? 
-                              <div><Button onClick={() => handleStatus(sessionData.session_id, 'resume')} color="info">Resume</Button> <Button onClick={() => handleStatus(sessionData.session_id, 'end')} color="danger">End</Button></div>: sessionData.status === 3 ? 
-                              <div><Button onClick={() => handleStatus(sessionData.session_id, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(sessionData.session_id, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
-                          </div>
-                        </div>
-                        </div>
-                      </div>
-                    </div>
+        {sessions && sessions.map((session : AmaSession, index: number) => 
+          <div className="col-12" key={session.session_id}>
+            <Card outline className="mb-4 shadow">
+            <CardHeader>
+              <div className="row">
+                <div className="h5 col-md-8 col-sm-12 font-weight-bold">{session.name}</div>
+                <div className="col-md-4 col-sm-12 text-md-right">
+                  <CircleFill size="8" className={`mr-2 mb-1 ${session.status > 0 ? "status-"+session.status : ""}`} />
+                  {session.statusName}
                   </div>
-                }
               </div>
+            </CardHeader>
+              <CardBody>
+                <CardSubtitle
+                  className="mb-2 text-muted"
+                  tag="h6"
+                >
+                  {session.hosts}
+                </CardSubtitle>
+                <CardText className="text-dark font-weight-400">
+                {session.description}
+                </CardText>
+                {session.status === 1 ? <Button color="success" onClick={() => handleStatus(session.session_id, 'start')}>Start</Button> : session.status === 2 ? 
+                <div><Button onClick={() => handleStatus(session.session_id, 'resume')} color="info">Resume</Button> <Button onClick={() => handleStatus(session.session_id, 'end')} color="danger">End</Button></div>: session.status === 3 ? 
+                <div><Button onClick={() => handleStatus(session.session_id, 'pause')} color="warning">Pause</Button> <Button onClick={() => handleStatus(session.session_id, 'end')}  color="danger">End</Button></div>: <Button disabled color="secondary">Ended</Button>}
+              </CardBody>
+            </Card>
           </div>
+          )}
         </div>
       </div>
       <ToastContainer />
