@@ -14,13 +14,11 @@ import {
   CardHeader,
   CardBody,
   CardSubtitle,
-  CardText,
-  Table,
+  CardText
 } from "reactstrap";
 
 export default function ListOwnerAma() {
   const [sessions, setSessions] = React.useState([])
-  const [sessionData, setSessionData] = React.useState<AmaSession>()
   let ownerAddress : string;
 
   const loadOwnerAmaSessions = async () => {
@@ -58,25 +56,6 @@ export default function ListOwnerAma() {
     }
   }
 
-  // view session details
-  const handleView = async (sessionId : number) => {
-    console.log("handle view for = ", sessionId)
-  
-    const res = await fetch(`/api/session/${sessionId}`, {
-      method: 'GET'
-    })
-      
-    if (res.status === 500) {
-        const errorMessage = await res.text()
-        console.log(errorMessage)
-        toast.error(errorMessage)
-    } else {
-        let result = await res.json()
-        result.statusName = getStatusName(result.status)
-        setSessionData(result)
-    }
-  }
-
   // update session status
   const handleStatus = async ( sessionId: number, command: string) => {
     console.log("handle status change: for ", sessionId, command)
@@ -97,7 +76,6 @@ export default function ListOwnerAma() {
     } else {
         // refresh page with updated data
         await loadOwnerAmaSessions()
-        await handleView(sessionId)
         toast("Status updated")
     }
   }
@@ -113,7 +91,7 @@ export default function ListOwnerAma() {
       <div className="container">
         <div className="row pt-3 pb-3">
           <div className="col-12 text-center display-4 pb-5">
-            AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}
+            My AMA Sessions {sessions ? "(" + sessions.length + ")" : ""}
           </div>
           <div className="col-12">
             <Button type="button" className="btn btn-primary float-right" onClick={loadOwnerAmaSessions}><ArrowClockwise size="24" /></Button>

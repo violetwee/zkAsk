@@ -21,3 +21,19 @@
 	width: 100%;
 	padding: 20px 10px;
 }
+
+.blink {
+	animation: blink 1s steps(1, end) infinite;
+}
+
+@keyframes blink {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.3;
+	}
+	100% {
+		opacity: 1;
+	}
+}

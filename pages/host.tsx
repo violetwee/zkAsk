@@ -49,7 +49,7 @@ export default function Host() {
                             href="#"
                             onClick={() => showComponent(2)}
                             >
-                            AMA Sessions
+                            My AMA Sessions
                         </NavLink>
                     </NavItem>
                 </Nav>

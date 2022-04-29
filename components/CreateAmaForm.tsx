@@ -4,6 +4,7 @@ import { providers } from "ethers"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
+import { Mic } from 'react-bootstrap-icons';
 
 import {
   FormGroup,
@@ -84,7 +85,11 @@ export default function CreateAmaForm() {
     <div>
       <div className="container">
         <div className="col">
-          <h1 className="display-3 pb-3">Create an AMA Session</h1>
+        <div className="row pt-3 pb-3">
+          <div className="col-12 text-center display-4 pb-5">
+          <Mic size="24" className="mr-2" />Create an AMA Session
+          </div>
+          </div>
         </div>
         <div className="col">
           <Form onSubmit={handleCreate}>

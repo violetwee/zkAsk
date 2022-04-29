@@ -4,21 +4,26 @@ import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { AmaSession } from 'interfaces/AmaSession'
 import { getStatusName, getSessionName }  from "lib/utils"
-import { ArrowClockwise, LockFill } from 'react-bootstrap-icons';
+import { ArrowClockwise, CircleFill, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PostQuestionForm from "./PostQuestionForm"
 
 import {
+  Badge,
   Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardSubtitle,
+  CardText,
   FormGroup,
   Input,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Table
-} from "reactstrap";
+} from"reactstrap";
 
 export default function ListActiveAma() {
   const [sessions, setSessions] = React.useState([])
@@ -45,6 +50,7 @@ export default function ListActiveAma() {
     if (response.status === 500) {
         console.log("loadAmaSessions err: ", response)
     } else {
+      console.log("AMA sessions loaded")
       // parse data for display
       const MAX_DESC_LENGTH = 100;
       result.map((r: { statusName: string; status: any; description: string }) => {
@@ -120,51 +126,40 @@ export default function ListActiveAma() {
     <div>
       <div className="container pt-6 pb-5">{!hasJoined &&
         <div className="row">
-         <div className="col-10">
-            <h5 className="display-4 pr-3">AMA Sessions : Now on Air</h5>
+          <div className="col-12 text-center mb-3">
+            <h5 className="display-3">AMA Sessions</h5>
+            <Button className="btn btn-outline-success" onClick={loadAmaSessions}>
+              Now on Air <CircleFill size="10" className="blink mb-1 ml-1" style={{color: "red"}} />
+            </Button>
           </div>
-          <div className="col-2">
-            <Button type="button" className="btn btn-primary float-right" onClick={loadAmaSessions}><ArrowClockwise size="24" /></Button>
-          </div>
-          <div className="col-12 pt-3 scroll-wrapper">
-            <Table>
-              <thead>
-                <tr>
-                  <th>
-                    #
-                  </th>
-                  <th>
-                    Name
-                  </th>
-                  <th>
-                    Description
-                  </th>
-                  <th>
-                    Host
-                  </th>
-                  <th>
-                    Status
-                  </th>
-                  <th>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sessions && sessions.map((session: AmaSession, index: number) => 
-                <tr key={session.session_id}>
-                  <td>{index+1}</td>
-                  <td style={{minWidth: 200}}>
-                    {session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}
-                  </td>
-                  <td style={{minWidth: 280}}>{session.description}</td>
-                  <td>{session.hosts}</td>
-                  <td>{session.statusName}</td>
-                  <td><Button color="success" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")}>JOIN</Button></td>
-                </tr>)}
-              </tbody>
-            </Table>
-            
+          <div className="row pt-3 pb-3">
+          {sessions && sessions.map((session : AmaSession, index: number) => 
+            <div className="col-12" key={session.session_id}>
+              <Card outline className="mb-4 shadow">
+              <CardHeader>
+                <div className="row">
+                  <div className="h5 col-md-8 col-sm-12 font-weight-bold">{session.name} {session.req_access_code ? <LockFill className="mb-1" size="16" opacity="0.4" /> : ''}</div>
+                  <div className="col-md-4 col-sm-12 text-md-right">
+                    <CircleFill size="8" className={`mr-2 mb-1 ${session.status > 0 ? "status-"+session.status : ""}`} />
+                    {session.statusName}
+                    </div>
+                </div>
+              </CardHeader>
+                <CardBody>
+                  <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                  >
+                    {session.hosts}
+                  </CardSubtitle>
+                  <CardText className="text-dark font-weight-400">
+                  {session.description}
+                  </CardText>
+                  <Button color="primary" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")}>JOIN</Button>
+                </CardBody>
+              </Card>
+            </div>
+            )}
           </div>
         </div>
         }{
@@ -179,6 +174,7 @@ export default function ListActiveAma() {
       </div>
 
       <Modal centered
+        size="md"
         isOpen={reqAccessCode} 
       >
         <ModalHeader toggle={function noRefCheck(){}} close={<button className="close" onClick={() => closeModal()}>×</button>}>
@@ -193,8 +189,10 @@ export default function ListActiveAma() {
                 id="accessCode"
                 name="accessCode"
                 placeholder="Enter access code"
-                type="text" value={accessCode}
+                type="password" 
+                value={accessCode}
                 onChange={handleInputChange} 
+                autoFocus
               />
           </FormGroup>
         </ModalBody>
