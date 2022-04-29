@@ -127,8 +127,10 @@ export default function PostQuestionForm({ sessionId }: Props) {
                 <Input
                   id="content"
                   name="content"
-                  type="text" value={values.content} 
+                  type="textarea" 
+                  value={values.content} 
                   maxLength={500}
+                  rows={5}
                   placeholder="Type your question..."
                   onChange={handleInputChange} required 
                 />
@@ -138,8 +140,9 @@ export default function PostQuestionForm({ sessionId }: Props) {
           <Row>
           <Col md="12">
             <FormGroup>
-            <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-              <Button color="primary" type="submit">
+            {/* <div className="d-grid gap-2 d-md-flex justify-content-md-end"> */}
+            <div className="text-md-center text-lg-right">
+              <Button color="primary" type="submit" className="form-control">
                 Post Question
               </Button>
             </div>

@@ -4,13 +4,12 @@ import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
 import { AmaSession } from 'interfaces/AmaSession'
 import { getStatusName, getSessionName }  from "lib/utils"
-import { ArrowClockwise, CircleFill, LockFill } from 'react-bootstrap-icons';
+import { CircleFill, LockFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PostQuestionForm from "./PostQuestionForm"
 
 import {
-  Badge,
   Button,
   Card,
   CardHeader,
@@ -50,7 +49,6 @@ export default function ListActiveAma() {
     if (response.status === 500) {
         console.log("loadAmaSessions err: ", response)
     } else {
-      console.log("AMA sessions loaded")
       // parse data for display
       const MAX_DESC_LENGTH = 100;
       result.map((r: { statusName: string; status: any; description: string }) => {
@@ -128,7 +126,7 @@ export default function ListActiveAma() {
         <div className="row">
           <div className="col-12 text-center mb-3">
             <h5 className="display-3">AMA Sessions</h5>
-            <Button className="btn btn-outline-success" onClick={loadAmaSessions}>
+            <Button className="btn btn-success" onClick={loadAmaSessions}>
               Now on Air <CircleFill size="10" className="blink mb-1 ml-1" style={{color: "red"}} />
             </Button>
           </div>
@@ -166,7 +164,7 @@ export default function ListActiveAma() {
         hasJoined && 
         <div className="row">
           <div className="col-12">
-          <h1 className="display-3 text-center p-3">{sessionName}</h1>
+          <h1 className="display-4 text-center p-3">{sessionName}</h1>
             <PostQuestionForm sessionId={sessionId} />
           </div>
         </div>
