@@ -23,7 +23,7 @@ export default function HowItWorks() {
             </p>
             <p className="h5">Participants</p>
             <p>
-              A participant may join an AMA session on the home page. If it is a secured session, the participant will be prompted for the access code. Once verified, the participant may post questions and/or vote for other participants' questions. 
+              A participant may join an AMA session on the home page. If it is a secured session, the participant will be prompted for the access code. Once verified, the participant may post questions and/or vote for other participants&apos; questions. 
             </p>
             <div>
               <div className="h5">Demo Video (YouTube)</div>
