@@ -9,13 +9,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import {
-  Badge,
   Button,
   Card,
   CardHeader,
   CardBody,
-  CardText,
-  Table
+  CardText
 } from "reactstrap";
 
 type Props = {
