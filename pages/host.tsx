@@ -31,8 +31,8 @@ export default function Host() {
             {/* Secondary Menu */}
             <Container>
             <Row>
-                <Col className="pt-5 pb-6 h5">
-                <Nav className="text-uppercase">
+                <Col className="pt-5 pb-5">
+                <Nav className="sub-menu bg-gradient-secondary">
                     <NavItem>
                         <NavLink 
                             active={(menuSelection == 1 ? true : false)}
@@ -60,7 +60,6 @@ export default function Host() {
 
             <div>
                 <main>
-                
                 {menuSelection == 1 &&
                     <CreateAmaForm/>
                 }

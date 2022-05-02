@@ -10,7 +10,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import {
   Button,
-  Table
+  Card,
+  CardHeader,
+  CardBody,
+  CardText
 } from "reactstrap";
 
 type Props = {
@@ -113,27 +116,37 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
     <div>
       <div className="container">
         <div className="row align-items-start pt-5 pb-3">
-          <div className="col">
-            <h5>Questions {questions ? "(" + questions.length + ")" : ""}</h5>
-          </div>
-          <div className="col">
-            <Button type="button" className="btn btn-primary float-right" onClick={loadQuestions}><ArrowClockwise size="24" /></Button>
+        <div className="col-12 text-center mb-3">
+            <h5 className="h4">Questions {questions ? "(" + questions.length + ")" : ""}</h5>
+            <Button className="btn btn-outline-success m-3" onClick={loadQuestions}>
+              Reload <ArrowClockwise size="16" className="mb-1" />
+            </Button>
           </div>
         </div>
       </div>
       <div>
-        <Table> 
-          <tbody>
-            {questions && questions.map((q: AmaQuestion, index: number) => 
-            <tr key={q.question_id}>
-              <td>{index+1}</td>
-              <td>{q.content} {q.votes > 0 ? "(" + q.votes + ")" : ""}</td>
-              <td align="right">
-                <Button color="primary" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
-              </td>
-            </tr>)}
-          </tbody>
-        </Table>
+      {questions && questions.map((q: AmaQuestion, index: number) => 
+      <div className="col-12" key={q.question_id}>
+        <Card outline className="mb-4 shadow">
+          <CardHeader className="p-2 pl-3 pr-3">
+            <div className="row">
+              <div className="col-6">
+                <span>#{index+1}</span>
+              </div>
+              <div className="col-6">
+                <span className="badge bg-white rounded-pill float-right pl-3 pr-3">{q.votes > 0 ? q.votes > 1 ? q.votes + " votes" : q.votes + " vote" : ""}</span>
+              </div>
+            </div>
+          </CardHeader>
+            <CardBody>
+              <CardText className="text-dark font-weight-400">
+              {q.content}
+              </CardText>
+              <Button color="primary" className="float-right" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
+            </CardBody>
+          </Card>
+        </div>
+       )}
       </div>
       <ToastContainer />
     </div>
