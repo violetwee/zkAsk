@@ -39,7 +39,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
   // post question 
   const handlePostQuestion = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("handle submit:", sessionId)
     setShouldReloadQuestions(false)
 
     toast("Posting your question...")
@@ -140,7 +139,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
           <Row>
           <Col md="12">
             <FormGroup>
-            {/* <div className="d-grid gap-2 d-md-flex justify-content-md-end"> */}
             <div className="text-md-center text-lg-right">
               <Button color="primary" type="submit" className="form-control">
                 Post Question

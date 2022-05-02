@@ -85,10 +85,10 @@ export default function CreateAmaForm() {
     <div>
       <div className="container">
         <div className="col">
-        <div className="row pt-3 pb-3">
-          <div className="col-12 text-center display-4 pb-5">
-          <Mic size="24" className="mr-2" />Create an AMA Session
-          </div>
+          <div className="row pt-3 pb-3">
+            <div className="col-12 text-center display-4 pb-5">
+              <Mic size="24" className="mr-2" />Create an AMA Session
+            </div>
           </div>
         </div>
         <div className="col">

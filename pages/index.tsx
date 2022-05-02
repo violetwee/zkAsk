@@ -1,19 +1,15 @@
-import Head from "next/head"
 import React from "react"
 import ListActiveAma from "../components/ListActiveAma"
+import Header from "../components/Header"
 import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
 import Image from 'next/image'
 import microphoneImage from '../public/images/ama-banner.jpg'
 
 export default function Home() {
     return (
         <div>
-            <Head>
-                <title>zkAsk - Be Heard. Be Anonymous.</title>
-                <meta name="description" content="Participate in AMA sessions anonymously" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-
+            <Header />
             <Navbar />
             <Image
                 alt="Now on Air image"
@@ -29,6 +25,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

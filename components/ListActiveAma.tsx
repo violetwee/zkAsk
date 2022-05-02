@@ -164,8 +164,8 @@ export default function ListActiveAma() {
         hasJoined && 
         <div className="row">
           <div className="col-12">
-          <h1 className="display-4 text-center p-3">{sessionName}</h1>
-            <PostQuestionForm sessionId={sessionId} />
+          <div className="display-4 text-center p-3">{sessionName}</div>
+          <PostQuestionForm sessionId={sessionId} />
           </div>
         </div>
       }
