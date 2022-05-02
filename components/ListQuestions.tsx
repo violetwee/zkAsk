@@ -113,42 +113,38 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
   }, [shouldReloadQuestions]);
 
   return (
-    <div>
-      <div className="container">
         <div className="row align-items-start pt-5 pb-3">
-        <div className="col-12 text-center mb-3">
-            <h5 className="h4">Questions {questions ? "(" + questions.length + ")" : ""}</h5>
-            <Button className="btn btn-outline-success m-3" onClick={loadQuestions}>
-              Reload <ArrowClockwise size="16" className="mb-1" />
-            </Button>
-          </div>
-        </div>
-      </div>
-      <div>
-      {questions && questions.map((q: AmaQuestion, index: number) => 
-      <div className="col-12" key={q.question_id}>
-        <Card outline className="mb-4 shadow">
-          <CardHeader className="p-2 pl-3 pr-3">
-            <div className="row">
-              <div className="col-6">
-                <span>#{index+1}</span>
-              </div>
-              <div className="col-6">
-                <span className="badge bg-white rounded-pill float-right pl-3 pr-3">{q.votes > 0 ? q.votes > 1 ? q.votes + " votes" : q.votes + " vote" : ""}</span>
-              </div>
+          <div className="col-12 text-center mb-3">
+              <h5 className="h4">Questions {questions ? "(" + questions.length + ")" : ""}</h5>
+              <Button className="btn btn-outline-success m-3" onClick={loadQuestions}>
+                Reload <ArrowClockwise size="16" className="mb-1" />
+              </Button>
             </div>
-          </CardHeader>
-            <CardBody>
-              <CardText className="text-dark font-weight-400">
-              {q.content}
-              </CardText>
-              <Button color="primary" className="float-right" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
-            </CardBody>
-          </Card>
-        </div>
-       )}
-      </div>
-      <ToastContainer />
-    </div>
+        
+          {questions && questions.map((q: AmaQuestion, index: number) => 
+          <div className="col-12" key={q.question_id}>
+            <Card outline className="mb-4 shadow">
+              <CardHeader className="p-2 pl-3 pr-3">
+                <div className="row">
+                  <div className="col-6">
+                    <span>#{index+1}</span>
+                  </div>
+                  <div className="col-6">
+                    <span className="badge bg-white rounded-pill float-right pl-3 pr-3">{q.votes > 0 ? q.votes > 1 ? q.votes + " votes" : q.votes + " vote" : ""}</span>
+                  </div>
+                </div>
+              </CardHeader>
+                <CardBody>
+                  <CardText className="text-dark font-weight-400">
+                  {q.content}
+                  </CardText>
+                  <Button color="primary" size="sm" className="pl-3 pr-3 float-right" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+        <ToastContainer />
+       </div>
+      
   );
 }
