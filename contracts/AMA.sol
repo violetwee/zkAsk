@@ -32,6 +32,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     uint256 constant PAUSED = 2;
     uint256 constant ACTIVE = 3;
     uint256 constant ENDED = 4;
+    uint256 constant MAX_QUESTIONS = 100;
 
     struct AmaSession {
         uint256 sessionId;
@@ -47,7 +48,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     mapping(uint256 => AmaSession) public amaSessions; // sessionId => AMA Session
     mapping(bytes32 => Question) public amaSessionQuestion; // hash(sessionId, questionId) => Question
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
-
+    mapping(uint256 => uint256[]) public amaSessionQuestionList; // sessionId => questionId[]
     // The external verifier used to verify Semaphore proofs.
     IVerifier public verifier;
 
@@ -102,6 +103,13 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         require(
             amaSessions[sessionId].owner == msg.sender,
             "You are not the owner of this AMA session"
+        );
+        _;
+    }
+    modifier notOverQuestionLimit(uint256 sessionId) {
+        require(
+            amaSessionQuestionList[sessionId].length < MAX_QUESTIONS,
+            "Maximum number of questions posted."
         );
         _;
     }
@@ -213,7 +221,12 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 nullifierHash,
         uint256 externalNullifier,
         uint256[8] calldata proof
-    ) external amaExists(sessionId) amaActive(sessionId) {
+    )
+        external
+        amaExists(sessionId)
+        amaActive(sessionId)
+        notOverQuestionLimit(sessionId)
+    {
         require(
             _isValidProof(
                 signal,
