@@ -77,3 +77,4 @@ cache
 .yarn/install-state.gz
 .pnp.*
 pages/admin.tsx
+components/admin/Dashboard.tsx
