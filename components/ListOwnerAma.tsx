@@ -62,20 +62,8 @@ export default function ListOwnerAma() {
   const handleStatus = async ( sessionId: number, command: string) => {
     console.log("handle status change: for ", sessionId, command)
 
-    const options = {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ command: command })
-      }
-  
-      const res = await fetch(`/api/session/status/${sessionId}`, options)
-      
-    if (res.status === 500) {
-        const errorMessage = await res.text()
-        toast.error(errorMessage);
-    } else {
+    try {
+      // post new status on-chain
       const provider = (await detectEthereumProvider()) as any
     
       await provider.request({ method: "eth_requestAccounts" })
@@ -97,12 +85,29 @@ export default function ListOwnerAma() {
         case "end":
           await contract.endAmaSession(BigNumber.from(sessionId))
           break;
-        default: console.log("Invalid command")
+        default: toast.error("Invalid command"); return;
       }
-
-      // refresh page with updated data
-      await loadOwnerAmaSessions()
-      toast("Status updated")
+        
+      // update db on new status
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ command: command })
+      }
+      const res = await fetch(`/api/session/status/${sessionId}`, options)
+      
+      if (res.status === 500) {
+          const errorMessage = await res.text()
+          toast.error(errorMessage);
+      } else {
+        // refresh page with updated data
+        await loadOwnerAmaSessions()
+        toast("Status updated")
+      }
+    } catch(err: any) {
+      toast.error("Failed to update status")
     }
   }
 

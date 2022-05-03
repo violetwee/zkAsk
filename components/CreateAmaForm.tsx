@@ -69,7 +69,7 @@ export default function CreateAmaForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: data,
+        body: data
       }
   
     const response = await fetch('/api/session/create', options)
@@ -78,14 +78,30 @@ export default function CreateAmaForm() {
         const errorMessage = await response.text()
         toast.error(errorMessage);
     } else {
-      let sessionId = await response.json();
-      let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
-
-      // send data on-chain
-      let options = { value: ethers.utils.parseEther("1") };
-      await contract.createAmaSession(BigNumber.from(sessionId), options);
-      setValues(initialValues) // reset form values
-      toast("AMA session created")
+      try {
+        let sessionId = await response.json();
+        let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
+        // send data on-chain
+        let options = { value: ethers.utils.parseEther("1") };
+        await contract.createAmaSession(BigNumber.from(sessionId), options);
+        
+        // update session to posted
+        const res = await fetch(`/api/session/post/${sessionId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ owner: owner }),
+        })
+        if (res.status === 500) {
+          toast.error("Failed to create AMA session")
+        } else {
+          setValues(initialValues) // reset form values
+          toast("AMA session created")
+        }
+      } catch (err: any) {
+        toast.error("Failed to create AMA session")
+      }
     }
   }
 

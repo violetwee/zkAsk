@@ -6,6 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     query: { sessionId }
   } = req
 
+
   const result = await excuteQuery({
     query: 'SELECT session_id, name, hosts, description, owner, created_at, status FROM ama_sessions WHERE session_id = ?',
     values: [sessionId]

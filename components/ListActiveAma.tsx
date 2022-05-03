@@ -127,7 +127,7 @@ export default function ListActiveAma() {
               Now on Air <CircleFill size="10" className="blink mb-1 ml-1" style={{color: "red"}} />
             </Button>
           </div>
-          <div className="row pt-3 pb-3">
+          <div className="col-12 pt-3 pb-3">
           {sessions && sessions.map((session : AmaSession, index: number) => 
             <div className="col-12" key={session.session_id}>
               <Card outline className="mb-4 shadow">
@@ -157,7 +157,11 @@ export default function ListActiveAma() {
             )}
           </div>
         </div>
-        }{
+        }
+        {sessions && sessions.length == 0 && 
+          <div className="text-center p-5">No active sessions right now</div>
+        }
+        {
         hasJoined && 
         <div className="row">
           <div className="col-12">

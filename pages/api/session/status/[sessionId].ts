@@ -9,31 +9,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     query: { sessionId }
   } = req
 
-  // update status onchain based on current status
+  let now = Math.floor(Date.now() / 1000);
   try {
     switch (command) {
       case "start":
         await excuteQuery({
-          query: 'UPDATE ama_sessions SET status = ? WHERE session_id = ?',
-          values: [CONSTANTS.ACTIVE, sessionId]
+          query: 'UPDATE ama_sessions SET status = ?, updated_at = ? WHERE session_id = ?',
+          values: [CONSTANTS.ACTIVE, now, sessionId]
         });
         break;
       case "pause":
         await excuteQuery({
-          query: 'UPDATE ama_sessions SET status = ? WHERE session_id = ?',
-          values: [CONSTANTS.PAUSED, sessionId]
+          query: 'UPDATE ama_sessions SET status = ?, updated_at = ? WHERE session_id = ?',
+          values: [CONSTANTS.PAUSED, now, sessionId]
         });
         break;
       case "resume":
         await excuteQuery({
-          query: 'UPDATE ama_sessions SET status = ? WHERE session_id = ?',
-          values: [CONSTANTS.ACTIVE, sessionId]
+          query: 'UPDATE ama_sessions SET status = ?, updated_at = ? WHERE session_id = ?',
+          values: [CONSTANTS.ACTIVE, now, sessionId]
         });
         break;
       case "end":
         await excuteQuery({
-          query: 'UPDATE ama_sessions SET status = ? WHERE session_id = ?',
-          values: [CONSTANTS.ENDED, sessionId]
+          query: 'UPDATE ama_sessions SET status = ?, updated_at = ? WHERE session_id = ?',
+          values: [CONSTANTS.ENDED, now, sessionId]
         });
         break;
       default: console.log("Invalid command")
