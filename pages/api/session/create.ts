@@ -3,7 +3,6 @@ import excuteQuery from 'lib/db'
 import { utils } from "ethers"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    console.log("body: ", req.body);
     const { name, host, desc, accessCode, owner } = req.body;
 
     try {

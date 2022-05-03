@@ -81,8 +81,12 @@ export default function CreateAmaForm() {
       try {
         let sessionId = await response.json();
         let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
+        // get current fee from contract
+        let fee = await contract.getFee();
+        console.log(fee)
+
         // send data on-chain
-        let options = { value: ethers.utils.parseEther("1") };
+        let options = { value: fee };
         await contract.createAmaSession(BigNumber.from(sessionId), options);
         
         // update session to posted
