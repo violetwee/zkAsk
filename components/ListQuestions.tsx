@@ -52,7 +52,7 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
 
     const ethersProvider = new providers.Web3Provider(provider)
     const signer = ethersProvider.getSigner()
-    const message = await signer.signMessage("Sign this message to create your identity!")
+    const message = await signer.signMessage("zkAsk - Sign message to proceed")
 
     const identity = new ZkIdentity(Strategy.MESSAGE, message)
     const identityCommitment = identity.genIdentityCommitment()

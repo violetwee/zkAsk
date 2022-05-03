@@ -22,6 +22,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256 identityCommitment
     );
     event AmaSessionStatusChanged(uint256 sessionId, uint256 statusId);
+    event FeeChanged(uint256 newFee);
 
     // AMA session states
     // NotStarted: Allows host to pre-create AMA session but keep it as inactive state. Audience may join but cannot post questions yet
@@ -49,6 +50,9 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     mapping(bytes32 => Question) public amaSessionQuestion; // hash(sessionId, questionId) => Question
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
     mapping(uint256 => uint256[]) public amaSessionQuestionList; // sessionId => questionId[]
+
+    uint256 fee = 1000000000000000000;
+
     // The external verifier used to verify Semaphore proofs.
     IVerifier public verifier;
 
@@ -165,10 +169,37 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionStatusChanged(sessionId, ENDED);
     }
 
+    function getFee() public view returns (uint256) {
+        return fee;
+    }
+
+    function changeFee(uint256 _fee) external onlyOwner {
+        fee = _fee;
+        emit FeeChanged(_fee);
+    }
+
+    function getAvailableFunds() external view onlyOwner returns (uint256) {
+        return address(this).balance;
+    }
+
+    function getOwnerBalance() external view onlyOwner returns (uint256) {
+        return address(owner()).balance;
+    }
+
+    function withdrawFunds() external onlyOwner returns (uint256) {
+        payable(owner()).transfer(address(this).balance);
+        return address(this).balance;
+    }
+
     // Session activities
     // @dev Create an AMA session. Creates a Semaphore Group.
     // @param sessionId Unique session id
-    function createAmaSession(uint256 sessionId) external {
+    function createAmaSession(uint256 sessionId) external payable {
+        require(
+            msg.value >= fee,
+            "Insufficient funds for creating an AMA session"
+        );
+
         _createGroup(sessionId, 20, 0);
 
         amaSessions[sessionId] = AmaSession({
@@ -177,6 +208,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             state: NOT_STARTED
         });
 
+        // payable(owner()).transfer(msg.value);
         emit AmaSessionCreated(sessionId);
     }
 
@@ -292,4 +324,8 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit QuestionVoted(sessionId, questionId, amaSessionQuestion[id].votes);
         return (questionId, amaSessionQuestion[id].votes);
     }
+
+    fallback() external payable {}
+
+    receive() external payable {}
 }

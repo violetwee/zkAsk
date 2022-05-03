@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
         },
         mainnet: {
             url: `${process.env.HMY_MAINNET_RPC_URL}`,
-            accounts: [`0x${process.env.HMY_PRIVATE_KEY}`]
+            accounts: [`0x${process.env.HMY_PRIVATE_KEY_MAINNET}`]
         }
     },
     gasReporter: {

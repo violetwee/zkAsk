@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
-import { providers } from "ethers"
+import { ethers, providers, BigNumber } from "ethers"
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
 import { Mic } from 'react-bootstrap-icons';
+import AMA from "artifacts/contracts/AMA.sol/AMA.json"
+import config from 'lib/config.json'
 
 import {
   FormGroup,
@@ -47,7 +49,7 @@ export default function CreateAmaForm() {
     await provider.request({ method: "eth_requestAccounts" })
     const ethersProvider = new providers.Web3Provider(provider)
     const signer = ethersProvider.getSigner()
-    await signer.signMessage("Sign this message to create your AMA session!")
+    await signer.signMessage("Sign this message to create your AMA session")
 
     let owner = await signer.getAddress();
     ReactSession.set("owner", owner)
@@ -70,14 +72,20 @@ export default function CreateAmaForm() {
         body: data,
       }
   
-    const res = await fetch('/api/session/create', options)
+    const response = await fetch('/api/session/create', options)
 
-    if (res.status === 500) {
-        const errorMessage = await res.text()
+    if (response.status === 500) {
+        const errorMessage = await response.text()
         toast.error(errorMessage);
     } else {
-        setValues(initialValues) // reset form values
-        toast("AMA session created")
+      let sessionId = await response.json();
+      let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
+
+      // send data on-chain
+      let options = { value: ethers.utils.parseEther("1") };
+      await contract.createAmaSession(BigNumber.from(sessionId), options);
+      setValues(initialValues) // reset form values
+      toast("AMA session created")
     }
   }
 

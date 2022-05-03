@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
-import { providers } from "ethers"
+import { ethers, providers, BigNumber } from "ethers"
 import { AmaSession } from "interfaces/AmaSession";
 import { getStatusName }  from "../lib/utils"
 import { ArrowClockwise, CircleFill } from 'react-bootstrap-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ReactSession } from 'react-client-session';
+import AMA from "artifacts/contracts/AMA.sol/AMA.json"
+import config from 'lib/config.json'
 
 import {
   Button,
@@ -32,7 +34,7 @@ export default function ListOwnerAma() {
 
       const ethersProvider = new providers.Web3Provider(provider)
       signer = ethersProvider.getSigner(ownerAddress)
-      await signer.signMessage("Sign this message to access Host features!")
+      await signer.signMessage("Sign this message to load your AMA sessions")
 
       ReactSession.set("owner", ownerAddress);
     }
@@ -74,9 +76,33 @@ export default function ListOwnerAma() {
         const errorMessage = await res.text()
         toast.error(errorMessage);
     } else {
-        // refresh page with updated data
-        await loadOwnerAmaSessions()
-        toast("Status updated")
+      const provider = (await detectEthereumProvider()) as any
+    
+      await provider.request({ method: "eth_requestAccounts" })
+      const ethersProvider = new providers.Web3Provider(provider)
+      const signer = ethersProvider.getSigner()
+      await signer.signMessage("Sign this message to update session status")
+
+      let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
+      switch (command) {
+        case "start":
+          await contract.startAmaSession(BigNumber.from(sessionId))
+          break;
+        case "pause":
+          await contract.pauseAmaSession(BigNumber.from(sessionId))
+          break;
+        case "resume":
+          await contract.resumeAmaSession(BigNumber.from(sessionId))
+          break;
+        case "end":
+          await contract.endAmaSession(BigNumber.from(sessionId))
+          break;
+        default: console.log("Invalid command")
+      }
+
+      // refresh page with updated data
+      await loadOwnerAmaSessions()
+      toast("Status updated")
     }
   }
 

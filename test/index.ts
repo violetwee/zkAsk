@@ -37,17 +37,27 @@ describe("AMA", function () {
 
     describe("# AMA sessions (a.k.a Semaphore Groups)", () => {
         it("Should create an AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0]);
+            const transaction = contract.createAmaSession(sessionIds[0], { value: ethers.utils.parseEther("1") });
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[0])
         })
 
         it("Should not create a duplicated AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[0]);
+            const transaction = contract.createAmaSession(sessionIds[0], { value: ethers.utils.parseEther("1") });
             await expect(transaction).to.be.revertedWith("SemaphoreGroups: group already exists");
         })
 
+        it("Should not create an AMA session with insufficient funds", async () => {
+            const transaction = contract.createAmaSession(sessionIds[1], { value: ethers.utils.parseEther("0.5") });
+            await expect(transaction).to.be.revertedWith("Insufficient funds for creating an AMA session");
+        })
+
+        it("Should change fee for creating an AMA session", async () => {
+            const transaction = contract.changeFee(ethers.utils.parseEther("2"));
+            await expect(transaction).to.emit(contract, "FeeChanged").withArgs(ethers.utils.parseEther("2"))
+        })
+
         it("Should be able to create another AMA session", async () => {
-            const transaction = contract.createAmaSession(sessionIds[1]);
+            const transaction = contract.createAmaSession(sessionIds[1], { value: ethers.utils.parseEther("2") });
             await expect(transaction).to.emit(contract, "AmaSessionCreated").withArgs(sessionIds[1]);
         })
 
@@ -310,7 +320,7 @@ describe("AMA", function () {
         })
     })
 
-    describe("# AMA session state checks", () => {
+    describe("# AMA session state", () => {
         it("Should pause the AMA session", async () => {
             const transaction = contract.pauseAmaSession(sessionIds[0]);
             await expect(transaction).to.emit(contract, "AmaSessionStatusChanged").withArgs(sessionIds[0], PAUSED)
@@ -329,6 +339,25 @@ describe("AMA", function () {
         it("Should not start an AMA session that has ended", async () => {
             const transaction = contract.startAmaSession(sessionIds[0]);
             await expect(transaction).to.be.revertedWith("AMA session's state should be Not Started");
+        })
+    })
+
+    describe("# Funds can be withdrawn (not stuck in contract)", () => {
+        it("Should have 3 ethers in contract", async () => {
+            const transaction = await contract.getAvailableFunds();
+            // console.log(await contract.getOwnerBalance())
+            await expect(transaction).to.be.equal(ethers.utils.parseEther("3"));
+        })
+
+        it("Should be able to withdraw funds from contract", async () => {
+            const transaction = await contract.withdrawFunds();
+            await expect(transaction.value).to.be.equal(0);
+        })
+
+        it("Should have 0 ethers in contract", async () => {
+            const transaction = await contract.getAvailableFunds();
+            // console.log(await contract.getOwnerBalance())
+            await expect(transaction).to.be.equal(ethers.utils.parseEther("0"));
         })
     })
 })

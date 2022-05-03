@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import excuteQuery from 'lib/db'
 import { utils } from "ethers"
-import { getContract } from 'lib/contract'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     console.log("body: ", req.body);
     const { name, host, desc, accessCode, owner } = req.body;
-    const { contract, account } = await getContract()
 
     try {
         // save ama session to off-chain database
@@ -19,12 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             values: [name, host, desc, Math.floor(Date.now() / 1000), owner, accessCodeHash == "" ? null : accessCodeHash]
         });
 
-
         if (result && result.insertId) {
             // save session id on-chain 
-            await contract.methods.createAmaSession(result.insertId).send({ from: account, gas: 6721900 });
-
-            res.status(200).end()
+            res.status(200).send(result.insertId)
         } else {
             res.status(500).send(result)
         }

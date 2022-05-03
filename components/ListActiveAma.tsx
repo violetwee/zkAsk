@@ -61,9 +61,6 @@ export default function ListActiveAma() {
 
   // add participant to AMA session (an AMA session is a Semaphore Group)
   const handleJoin = async (sessionId : number, accessCode: string) => {
-    console.log("handle join for = ", sessionId, accessCode)
-
-   
     const provider = (await detectEthereumProvider()) as any
     if (!provider) {
       toast("Please install MetaMask and try again!")
@@ -73,7 +70,7 @@ export default function ListActiveAma() {
     toast("Create your Semaphore identity...")
     const ethersProvider = new providers.Web3Provider(provider)
     const signer = ethersProvider.getSigner()
-    const message = await signer.signMessage('Sign this message to create your identity!')
+    const message = await signer.signMessage('zkAsk - Sign message to proceed')
 
     const identity = new ZkIdentity(Strategy.MESSAGE, message)
     const identityCommitment = identity.genIdentityCommitment()
