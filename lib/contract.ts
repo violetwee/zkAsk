@@ -4,10 +4,14 @@ import AMA from "artifacts/contracts/AMA.sol/AMA.json"
 import { AbiItem } from 'web3-utils'
 
 const getContract = async () => {
-  const web3 = new Web3(process.env.HMY_WSS_URL as string);
+  // set RPC URL and PTE KEY based on env
+  const RPC_URL = process.env.NODE_ENV == "development" ? process.env.HMY_TESTNET_WSS_URL : process.env.HMY_MAINNET_WSS_URL
+  const PTE_KEY = process.env.NODE_ENV == "development" ? "0x" + process.env.HMY_PRIVATE_KEY : "0x" + process.env.HMY_PRIVATE_KEY_MAINNET
+
+  const web3 = new Web3(RPC_URL as string);
   web3.eth.handleRevert = true // return custom error messages from contract
 
-  let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount("0x" + process.env.HMY_PRIVATE_KEY as string);
+  let hmyMasterAccount = web3.eth.accounts.privateKeyToAccount(PTE_KEY as string);
   web3.eth.accounts.wallet.add(hmyMasterAccount);
   web3.eth.defaultAccount = hmyMasterAccount.address
 

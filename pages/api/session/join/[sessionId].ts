@@ -25,10 +25,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { contract, account } = await getContract()
 
     try {
-      await contract.methods.joinAmaSession(sessionId, BigNumber.from(identityCommitment)).send({ from: account, gas: 6721900 })
+      // let options = { gasPrice: 1000000000, gasLimit: 21000 }; // setting the default gas limit, but changing later based on estimate gas
+
+      await contract.methods.joinAmaSession(sessionId, BigNumber.from(identityCommitment)).send({
+        from: account, gas: 6721900
+      })
+
+      // contract.methods.joinAmaSession(sessionId, BigNumber.from(identityCommitment)).estimateGas({ gasPrice: 30000000000 }).then((gas: any) => {
+      //   console.log(gas)
+      //   options = { ...options, gasLimit: gas.toSring() };
+
+      //   contract.methods.joinAmaSession(sessionId, BigNumber.from(identityCommitment)).send(options)
+      // });
+
       res.status(200).end()
     } catch (error: any) {
-      console.log(error.reason)
+      console.log(error)
       res.status(500).send(error.reason || "Failed to join session")
     }
   } else {

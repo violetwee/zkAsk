@@ -5,13 +5,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const {
     query: { sessionId }
   } = req
+  try {
+    const { contract, account } = await getContract()
 
-  const { contract, account } = await getContract()
+    let options = { from: account, gas: 6721900 };
+    let identityCommitments: any = [];
+    const identityCommitmentsBN = await contract.methods.getIdentityCommitments(sessionId).call(options)
 
-  const identityCommitmentsBN = await contract.methods.getIdentityCommitments(sessionId).call({ from: account, gas: 6721900 })
-  let identityCommitments = [];
-  for (var i = 0; i < identityCommitmentsBN.length; i++) {
-    identityCommitments.push(identityCommitmentsBN[i].toString());
+    for (var i = 0; i < identityCommitmentsBN.length; i++) {
+      identityCommitments.push(identityCommitmentsBN[i].toString());
+    }
+    res.status(200).send(identityCommitments)
+
+  } catch (error: any) {
+    console.log("/identity: ", error)
+    res.status(500).send(error.reason || "Failed to set session to posted")
   }
-  res.status(200).send(identityCommitments)
 }

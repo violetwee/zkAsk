@@ -72,9 +72,17 @@ export default function PostQuestionForm({ sessionId }: Props) {
     const questionId = await response.json()
 
     // fetch all identity commitments from session so that we can generate proofs
-    const identityCommitments = await(await fetch(`/api/session/identity/${sessionId}`, {
+    let identityCommitments = [];
+    const r = await fetch(`/api/session/identity/${sessionId}`, {
       method: 'GET'
-    })).json()
+    })
+
+    if (r.status === 500) {
+      console.log(r)
+    } else {
+      identityCommitments = await r.json()
+    }
+    console.log(identityCommitments)
 
     // generate proofs
     let merkleProof : MerkleProof
