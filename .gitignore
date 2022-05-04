@@ -76,6 +76,3 @@ cache
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-pages/admin.tsx
-components/admin/Dashboard.tsx
-.contract-addresses
