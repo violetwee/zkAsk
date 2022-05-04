@@ -27,6 +27,7 @@ const initialValues = {
 
 export default function CreateAmaForm() {
   const [values, setValues] = useState(initialValues);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -39,6 +40,7 @@ export default function CreateAmaForm() {
   // create AMA session with form inputs
   const handleCreate = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsProcessing(true);
 
     const provider = (await detectEthereumProvider()) as any
     if (!provider) {
@@ -70,21 +72,21 @@ export default function CreateAmaForm() {
           'Content-Type': 'application/json',
         },
         body: data
-      }
-  
+    }
+    
     const response = await fetch('/api/session/create', options)
 
     if (response.status === 500) {
         const errorMessage = await response.text()
         toast.error(errorMessage);
+        setIsProcessing(false);
     } else {
       try {
         let sessionId = await response.json();
         let contract = new ethers.Contract(config.AMA_CONTRACT_ADDRESS, AMA.abi, signer);
+        
         // get current fee from contract
         let fee = await contract.getFee();
-        console.log(fee)
-
         // send data on-chain
         let options = { value: fee };
         await contract.createAmaSession(BigNumber.from(sessionId), options);
@@ -99,12 +101,15 @@ export default function CreateAmaForm() {
         })
         if (res.status === 500) {
           toast.error("Failed to create AMA session")
+          setIsProcessing(false);
         } else {
           setValues(initialValues) // reset form values
           toast("AMA session created")
+          setIsProcessing(false);
         }
       } catch (err: any) {
         toast.error("Failed to create AMA session")
+        setIsProcessing(false);
       }
     }
   }
@@ -175,7 +180,7 @@ export default function CreateAmaForm() {
             <Row>
             <Col md="12">
                 <FormGroup>
-                  <Button className="float-right" color="primary" type="submit">
+                  <Button className="float-right" color="primary" type="submit" disabled={isProcessing}>
                     Create
                   </Button>
                 </FormGroup>

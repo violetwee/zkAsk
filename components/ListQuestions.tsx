@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
@@ -22,12 +22,11 @@ type Props = {
 }
 
 export default function ListQuestions({ sessionId, shouldReloadQuestions }: Props) {
-  const [questions, setQuestions] = React.useState([])  
+  const [questions, setQuestions] = useState([])  
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // load all questions for selected session id
   const loadQuestions = async () => {
-    console.log("loadQuestions for sessionId: ", sessionId)
-
     const response = await fetch(`/api/questions/${sessionId}`, {
       method: 'GET'
     })
@@ -45,7 +44,7 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
   // participant can only vote once for each question
   const handleVote = async (sessionId: number,  questionId: number) => {
     // event.preventDefault();
-    console.log("handle vote:", sessionId, questionId)
+    setIsProcessing(true)
 
     const provider = (await detectEthereumProvider()) as any
     await provider.request({ method: "eth_requestAccounts" })
@@ -70,6 +69,7 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
       merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
     } catch(error: any) {
       toast.error("Join the AMA session before voting on a question")
+      setIsProcessing(false)
       return
     }
     const nullifier = `${sessionId}_${questionId}`;
@@ -104,6 +104,7 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
       loadQuestions()
       toast("Vote submitted onchain")
     }
+    setIsProcessing(false)
   }
 
   // reload questions list when shouldReloadQuestions = true
@@ -138,7 +139,7 @@ export default function ListQuestions({ sessionId, shouldReloadQuestions }: Prop
                   <CardText className="text-dark font-weight-400">
                   {q.content}
                   </CardText>
-                  <Button color="primary" size="sm" className="pl-3 pr-3 float-right" onClick={() => handleVote(sessionId, q.question_id)}>VOTE</Button>
+                    <Button color="primary" size="md" className="pl-3 pr-3 float-right" onClick={() => handleVote(sessionId, q.question_id)} disabled={isProcessing}>VOTE</Button>
                 </CardBody>
               </Card>
             </div>

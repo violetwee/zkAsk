@@ -27,6 +27,7 @@ type Props = {
 export default function PostQuestionForm({ sessionId }: Props) {
   const [values, setValues] = useState(initialValues);
   const [shouldReloadQuestions, setShouldReloadQuestions] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -40,6 +41,7 @@ export default function PostQuestionForm({ sessionId }: Props) {
   const handlePostQuestion = async (event : React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setShouldReloadQuestions(false)
+    setIsProcessing(true)
 
     toast("Posting your question...")
     
@@ -80,6 +82,7 @@ export default function PostQuestionForm({ sessionId }: Props) {
       merkleProof = generateMerkleProof(20, BigInt(0), identityCommitments, identityCommitment)
     } catch(error: any) {
       toast.error("Join the AMA session before posting a question")
+      setIsProcessing(false)
       return
     }
     const nullifier = `${sessionId}_${questionId}`;
@@ -107,14 +110,17 @@ export default function PostQuestionForm({ sessionId }: Props) {
       })
     })
 
+  
     if (res.status === 500) { 
         const errorMessage = await res.text()
         toast.error(errorMessage);
+       
     } else {
         setShouldReloadQuestions(true)
         setValues(initialValues)
         toast("Question posted")
     }
+    setIsProcessing(false)
   }
 
   return (
@@ -140,8 +146,8 @@ export default function PostQuestionForm({ sessionId }: Props) {
           <Col md="12">
             <FormGroup>
             <div className="text-md-center text-lg-right">
-              <Button color="primary" type="submit" className="form-control">
-                Post Question
+              <Button color="primary" type="submit" className="form-control" disabled={isProcessing}>
+                { isProcessing ? "Please wait..." : "Post Question" }
               </Button>
             </div>
             </FormGroup>

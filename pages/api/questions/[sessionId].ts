@@ -10,6 +10,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     query: 'SELECT question_id, content, created_at, votes FROM ama_questions WHERE session_id = ? AND is_posted = ? ORDER BY votes DESC, created_at ASC',
     values: [sessionId, 1]
   });
-  console.log(result)
   res.status(200).send(result)
 }

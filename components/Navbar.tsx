@@ -23,7 +23,7 @@ export default function NavBar() {
             alt="zkAsk logo"
             key={Date.now()}
             src={logo} 
-            />
+          />
         </NavbarBrand>
         <NavbarToggler onClick={function noRefCheck(){}} />
           <Nav

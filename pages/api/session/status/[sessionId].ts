@@ -3,7 +3,6 @@ import excuteQuery from 'lib/db'
 import { CONSTANTS } from 'lib/constants'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("body: ", req.body);
   const { command } = req.body;
   const {
     query: { sessionId }

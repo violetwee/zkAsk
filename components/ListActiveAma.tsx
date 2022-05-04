@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider"
 import { providers } from "ethers"
 import { Strategy, ZkIdentity } from "@zk-kit/identity"
@@ -25,12 +25,13 @@ import {
 } from"reactstrap";
 
 export default function ListActiveAma() {
-  const [sessions, setSessions] = React.useState([])
-  const [hasJoined, setHasJoined] = React.useState(false)
-  const [reqAccessCode, setReqAccessCode] = React.useState(false)
-  const [sessionId, setSessionId] = React.useState(0)
-  const [sessionName, setSessionName] = React.useState("")
-  const [accessCode, setAccessCode] = React.useState("");
+  const [sessions, setSessions] = useState([])
+  const [hasJoined, setHasJoined] = useState(false)
+  const [reqAccessCode, setReqAccessCode] = useState(false)
+  const [sessionId, setSessionId] = useState(0)
+  const [sessionName, setSessionName] = useState("")
+  const [accessCode, setAccessCode] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // access code input
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +62,8 @@ export default function ListActiveAma() {
 
   // add participant to AMA session (an AMA session is a Semaphore Group)
   const handleJoin = async (sessionId : number, accessCode: string) => {
+    setIsProcessing(true)
+
     const provider = (await detectEthereumProvider()) as any
     if (!provider) {
       toast("Please install MetaMask and try again!")
@@ -97,6 +100,7 @@ export default function ListActiveAma() {
       setReqAccessCode(false);
       setSessionName(getSessionName(sessionId, sessions))
     }
+    setIsProcessing(false)
   }
 
   // prompt participant for access code to join the AMA session
@@ -150,7 +154,7 @@ export default function ListActiveAma() {
                   <CardText className="text-dark font-weight-400">
                   {session.description}
                   </CardText>
-                  <Button color="primary" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")}>JOIN</Button>
+                  <Button color="primary" onClick={() => session.req_access_code ? requestAccessCode(session.session_id) : handleJoin(session.session_id, "")} disabled={isProcessing}>JOIN</Button>
                 </CardBody>
               </Card>
             </div>

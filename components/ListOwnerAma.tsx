@@ -45,7 +45,6 @@ export default function ListOwnerAma() {
     let result = await res.json()
 
     if (res.status === 500) {
-      console.log(res)
       toast.error("Failed to load AMA sessions")
     } else {
         // parse data for display

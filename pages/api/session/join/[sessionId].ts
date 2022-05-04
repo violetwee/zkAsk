@@ -5,7 +5,6 @@ import excuteQuery from 'lib/db'
 import { getContract } from 'lib/contract'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log("body: ", req.body);
   const { identityCommitment, accessCode } = req.body;
   const {
     query: { sessionId }
