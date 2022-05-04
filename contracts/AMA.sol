@@ -51,7 +51,7 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
     mapping(uint256 => uint256[]) public amaSessionIdentityCommitments; // sessionId => identityCommitment[]
     mapping(uint256 => uint256[]) public amaSessionQuestionList; // sessionId => questionId[]
 
-    uint256 fee = 1000000000000000000;
+    uint256 fee = 10000000000000000000; // default fee
 
     // The external verifier used to verify Semaphore proofs.
     IVerifier public verifier;
@@ -169,29 +169,40 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
         emit AmaSessionStatusChanged(sessionId, ENDED);
     }
 
+    // @dev Get fee payable for creating an AMA session
+    // @return Current fee in wei
     function getFee() public view returns (uint256) {
         return fee;
     }
 
+    /** onlyOwner functions **/
+    // @dev Change fee payable for creating an AMA session
+    // @param _fee Fee in wei
     function changeFee(uint256 _fee) external onlyOwner {
         fee = _fee;
         emit FeeChanged(_fee);
     }
 
+    // @dev Get contract balance
+    // @return Contract balance
     function getAvailableFunds() external view onlyOwner returns (uint256) {
         return address(this).balance;
     }
 
+    // @dev Get contract owner's balance
+    // @return Contract owner's balance
     function getOwnerBalance() external view onlyOwner returns (uint256) {
         return address(owner()).balance;
     }
 
+    // @dev Withdraw contract balance to contract owner's so funds are not stuck in contract
+    // @return Remaining contract balance after withdrawal
     function withdrawFunds() external onlyOwner returns (uint256) {
         payable(owner()).transfer(address(this).balance);
         return address(this).balance;
     }
 
-    // Session activities
+    /** Session activities **/
     // @dev Create an AMA session. Creates a Semaphore Group.
     // @param sessionId Unique session id
     function createAmaSession(uint256 sessionId) external payable {
@@ -208,7 +219,6 @@ contract AMA is SemaphoreCore, SemaphoreGroups, Ownable {
             state: NOT_STARTED
         });
 
-        // payable(owner()).transfer(msg.value);
         emit AmaSessionCreated(sessionId);
     }
 
