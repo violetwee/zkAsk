@@ -5,9 +5,7 @@ zkAsk allows a host to create an AMA session where the audience can join and ask
 It leverages on Semaphore and zk-proofs to preserve the user’s identity.
 
 - Demo video: https://www.youtube.com/watch?v=LbdWAydgKjQ
-- Demo site: https://testnet.zkask.one
-
-To try out the demo site, ensure that you have at least two MetaMask accounts connected to the Harmony Testnet (one for Host and one for Audience).
+- 'Live'' site: https://zkask.one
 
 # Features
 
@@ -27,11 +25,6 @@ To try out the demo site, ensure that you have at least two MetaMask accounts co
 - join a public session or enter access code to join a private AMA session
 - post a question to an AMA session anonymously
 - vote on other audience's questions anonymously
-
-# Contract Addresses (Harmony Testnet)
-
-- Verifier contract: 0x8c1739023F7D01Db11b361CEa0569aCe379a321b
-- AMA contract: 0x2e81a9D008400A4EF001Bb76AC636ddBB3eBcaf8
 
 # Testing
 

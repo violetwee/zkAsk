@@ -39,6 +39,20 @@ export default function Faq() {
             <p>
               zkAsk is built on the Harmony blockchain. Therefore an audience/participant who wants to join an AMA session will need a MetaMask wallet to access the blockchain. Install the MetaMask chrome extension <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en" target="_blank" rel="noreferrer">here</a>. Then, add the Harmony network to MetaMask by following this <a href="https://docs.harmony.one/home/general/wallets/browser-extensions-wallets/metamask-wallet/adding-harmony" target="_blank" rel="noreferrer">guide</a>.
             </p>
+
+            <p className="font-weight-bold">
+              How much does it cost to create an AMA session? 
+            </p>
+            <p>
+              The cost is 1 ONE right now. This is to encourage hosts to create AMA sessions on zkAsk, as it is a new project. The cost may change in future, in order to make zkAsk self-sustainable. 
+            </p>
+
+            <p className="font-weight-bold">
+              Is there a limit to the number of questions for an AMA session? 
+            </p>
+            <p>
+              Yes, each AMA session can accept up to 100 questions.
+            </p>
           </div>
         </div>
       </div>
