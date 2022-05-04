@@ -82,7 +82,6 @@ export default function PostQuestionForm({ sessionId }: Props) {
     } else {
       identityCommitments = await r.json()
     }
-    console.log(identityCommitments)
 
     // generate proofs
     let merkleProof : MerkleProof

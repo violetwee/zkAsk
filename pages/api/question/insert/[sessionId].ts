@@ -13,7 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     query: 'INSERT INTO ama_questions (session_id, content, created_at, is_posted) VALUES (?, ?, ?, ?)',
     values: [sessionId, content, Math.floor(Date.now() / 1000), 0]
   });
-  console.log("Insert question / update DB: ", result)
 
   if (result && result.insertId)
     res.status(200).send(result.insertId)

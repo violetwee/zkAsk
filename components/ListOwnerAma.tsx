@@ -59,8 +59,6 @@ export default function ListOwnerAma() {
 
   // update session status
   const handleStatus = async ( sessionId: number, command: string) => {
-    console.log("handle status change: for ", sessionId, command)
-
     try {
       // post new status on-chain
       const provider = (await detectEthereumProvider()) as any

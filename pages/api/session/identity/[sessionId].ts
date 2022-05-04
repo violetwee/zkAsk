@@ -18,7 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).send(identityCommitments)
 
   } catch (error: any) {
-    console.log("/identity: ", error)
-    res.status(500).send(error.reason || "Failed to set session to posted")
+    res.status(500).send(error.reason || "Failed to join session")
   }
 }
