@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).end()
     } catch (error: any) {
       console.log(error)
-      res.status(500).send(error.reason || "Failed to join session")
+      res.status(500).send("Failed to join session")
     }
   } else {
     res.status(500).send("Invalid access code. Please obtain access code from the host.")

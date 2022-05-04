@@ -82,8 +82,6 @@ export default function ListActiveAma() {
       identityCommitment: identityCommitment.toString(),
       accessCode: accessCode || ""
     })
-    console.log(data)
-    
     const options = {
       method: "POST",
       headers: {
