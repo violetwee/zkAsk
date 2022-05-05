@@ -48,7 +48,7 @@ export default function ListActiveAma() {
       let result = await response.json()
 
     if (response.status === 500) {
-        console.log("loadAmaSessions err: ", response)
+        console.log("loadAmaSessions db err: ", response)
     } else {
       // parse data for display
       const MAX_DESC_LENGTH = 100;
