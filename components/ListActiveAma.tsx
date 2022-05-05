@@ -132,7 +132,7 @@ export default function ListActiveAma() {
             </Button>
           </div>
           <div className="col-12 pt-3 pb-3">
-          {sessions && sessions.map((session : AmaSession, index: number) => 
+          {sessions && sessions.length > 0 && sessions.map((session : AmaSession, index: number) => 
             <div className="col-12" key={session.session_id}>
               <Card outline className="mb-4 shadow">
               <CardHeader>

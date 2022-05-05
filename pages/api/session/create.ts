@@ -24,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
     } catch (error: any) {
+        console.log(error)
         res.status(500).send(error.reason || "Failed to create AMA session")
     }
 }
