@@ -77,8 +77,8 @@ export default function CreateAmaForm() {
     const response = await fetch('/api/session/create', options)
 
     if (response.status === 500) {
-        const errorMessage = await response.text()
-        toast.error(errorMessage);
+        // const errorMessage = await response.text()
+        toast.error("Failed to create AMA session");
         setIsProcessing(false);
     } else {
       try {
