@@ -77,3 +77,4 @@ cache
 .yarn/install-state.gz
 .pnp.*
 lib/config.json
+.env.development
