@@ -4,7 +4,12 @@ zkAsk allows a host to create an AMA session where the audience can join and ask
 
 It leverages on Semaphore and zk-proofs to preserve the user’s identity.
 
+This project is inspired by Koh Weijie's Semaphore presentation at Devcon 5.
+
+- Link: https://archive.devcon.org/archive/watch/5/hands-on-applications-of-zero-knowledge-signalling/?playlist=Devcon%205&tab=YouTube
+
 - Demo video: https://www.youtube.com/watch?v=LbdWAydgKjQ
+- Testnet site: https://testnet.zkask.one
 - 'Live'' site: https://zkask.one
 
 # Features
@@ -55,6 +60,8 @@ Then, browse to http://localhost:3000 to access the frontend UI.
 Run `yarn deploy --network testnet`
 
 # Project Resources
+
+Project template is forked from Semaphore Boilerplate.
 
 - [Semaphore Boilerplate](https://github.com/cedoor/semaphore-boilerplate)
 - [Semaphore](https://github.com/appliedzkp/semaphore)

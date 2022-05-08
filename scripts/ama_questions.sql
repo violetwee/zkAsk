@@ -19,4 +19,4 @@ COLLATE utf8_general_ci NOT NULL,
   CONSTRAINT `sessionId` FOREIGN KEY
 (`session_id`) REFERENCES `ama_sessions`
 (`session_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
