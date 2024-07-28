@@ -7,8 +7,6 @@ It leverages on Semaphore and zk-proofs to preserve the user’s identity.
 This project is inspired by Koh Weijie's Semaphore presentation at Devcon 5 - https://archive.devcon.org/archive/watch/5/hands-on-applications-of-zero-knowledge-signalling/?playlist=Devcon%205&tab=YouTube
 
 - Demo video: https://www.youtube.com/watch?v=LbdWAydgKjQ
-- Testnet site: https://testnet.zkask.one
-- 'Live'' site: https://zkask.one
 
 # Features
 
